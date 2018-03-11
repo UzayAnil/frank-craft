@@ -21,20 +21,6 @@ struct LightSource {
 };
 
 
-class RotCommand {
-public:
-    RotCommand( std::set<SceneNode*> nodes, char axis, float angle );
-    RotCommand( std::set<SceneNode*> nodes );
-    void update( char axis, float angle );
-    void redo();
-    void undo();
-
-
-    std::vector<SceneNode*> m_node;
-    std::vector<glm::mat4> m_initial;
-    std::vector<glm::mat4> m_final;
-};
-
 class Winter : public CS488Window {
 public:
     Winter(const std::string & luaSceneFile);
@@ -72,34 +58,6 @@ protected:
     void renderGeometryGraph(const SceneNode *node, glm::mat4 M );
     void renderArcCircle();
 
-    glm::vec3 get_arcball_vector(int x, int y);
-    void resetPosition();
-    void resetOrientation();
-    void resetJoints();
-    void resetAll();
-    void undo();
-    void redo();
-
-    char m_interaction_mode;
-    float m_mouse_x;
-    float m_mouse_y;
-
-    bool m_left_mouse_key_down;
-    bool m_middle_mouse_key_down;
-    bool m_right_mouse_key_down;
-    bool m_do_picking;
-
-    bool m_z_buffer;
-    bool m_display_arc;
-    bool m_backface_culling;
-    bool m_frontface_culling;
-
-    std::string m_message;
-
-    std::set<SceneNode*> m_selected_joints;
-
-
-
     glm::mat4 m_perpsective;
     glm::mat4 m_view;
 
@@ -127,8 +85,5 @@ protected:
     std::string m_luaSceneFile;
 
     std::shared_ptr<SceneNode> m_rootNode;
-    SceneNode* m_sphereNode;
 
-    unsigned int m_cmd_index;
-    std::vector<RotCommand> m_cmds;
 };

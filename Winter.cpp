@@ -34,16 +34,8 @@ Winter::Winter(const std::string & luaSceneFile)
       m_vbo_vertexPositions(0),
       m_vbo_vertexNormals(0),
       m_vao_arcCircle(0),
-      m_vbo_arcCircle(0),
-
-      m_sphereNode( nullptr ),
-      m_left_mouse_key_down( false ),
-      m_middle_mouse_key_down( false ),
-      m_right_mouse_key_down( false )
+      m_vbo_arcCircle(0)
 {
-    m_cmd_index = 0;
-    resetAll();
-
 }
 
 //----------------------------------------------------------------------------------------
@@ -116,9 +108,6 @@ void Winter::processLuaSceneFile(const std::string & filename) {
     if (!m_rootNode) {
         std::cerr << "Could not open " << filename << std::endl;
     }
-    if ( m_rootNode->children.size() == 1)
-        m_sphereNode = m_rootNode->children.front();
-
 }
 
 //----------------------------------------------------------------------------------------
@@ -285,26 +274,20 @@ void Winter::uploadCommonSceneUniforms() {
         glUniformMatrix4fv(location, 1, GL_FALSE, value_ptr(m_perpsective));
         CHECK_GL_ERRORS;
 
-        location = m_shader.getUniformLocation("picking");
-        glUniform1i( location, m_do_picking ? 1 : 0 );
+        {
+            location = m_shader.getUniformLocation("light.position");
+            glUniform3fv(location, 1, value_ptr(m_light.position));
+            location = m_shader.getUniformLocation("light.rgbIntensity");
+            glUniform3fv(location, 1, value_ptr(m_light.rgbIntensity));
+            CHECK_GL_ERRORS;
+        }
 
-        if( !m_do_picking ) {
-            //-- Set LightSource uniform for the scene:
-            {
-                location = m_shader.getUniformLocation("light.position");
-                glUniform3fv(location, 1, value_ptr(m_light.position));
-                location = m_shader.getUniformLocation("light.rgbIntensity");
-                glUniform3fv(location, 1, value_ptr(m_light.rgbIntensity));
-                CHECK_GL_ERRORS;
-            }
-
-            //-- Set background light ambient intensity
-            {
-                location = m_shader.getUniformLocation("ambientIntensity");
-                vec3 ambientIntensity(0.05f);
-                glUniform3fv(location, 1, value_ptr(ambientIntensity));
-                CHECK_GL_ERRORS;
-            }
+        //-- Set background light ambient intensity
+        {
+            location = m_shader.getUniformLocation("ambientIntensity");
+            vec3 ambientIntensity(0.05f);
+            glUniform3fv(location, 1, value_ptr(ambientIntensity));
+            CHECK_GL_ERRORS;
         }
     }
     m_shader.disable();
@@ -341,50 +324,8 @@ void Winter::guiLogic()
     ImGuiWindowFlags windowFlags(ImGuiWindowFlags_AlwaysAutoResize);
     float opacity(0.5f);
 
-    if (ImGui::BeginMainMenuBar()) {
-        if (ImGui::BeginMenu("Application")) {
-            if (ImGui::MenuItem("Reset Position",    "I")) { resetPosition(); }
-            if (ImGui::MenuItem("Reset Orientation", "O")) { resetOrientation(); }
-            if (ImGui::MenuItem("Reset Joints",      "N")) { resetJoints(); }
-            if (ImGui::MenuItem("Reset All",         "A")) { resetAll(); }
-            if (ImGui::MenuItem("Quit",              "Q")) { glfwSetWindowShouldClose(m_window, GL_TRUE); }
-            ImGui::EndMenu();
-        }
-
-        if (ImGui::BeginMenu("Edit")) {
-            if (ImGui::MenuItem("Undo", "U")) { undo(); }
-            if (ImGui::MenuItem("Redo", "R")) { redo(); }
-            ImGui::EndMenu();
-        }
-
-        if (ImGui::BeginMenu("Options")) {
-            if (ImGui::MenuItem("Circle",            "C", &m_display_arc, true)) {}
-            if (ImGui::MenuItem("Z-buffer",          "Z", &m_z_buffer, true)) {}
-            if (ImGui::MenuItem("Backface culling",  "B", &m_backface_culling, true)) {}
-            if (ImGui::MenuItem("Frontface culling", "F", &m_frontface_culling, true)) {}
-            ImGui::EndMenu();
-        }
-        ImGui::EndMainMenuBar();
-    }
-
     ImGui::Begin("Properties", &showDebugWindow, ImVec2(100,100), opacity,
             windowFlags);
-
-
-
-        ImGui::Text( "\n -- Interaction Mode -- " );
-        if ( ImGui::RadioButton( "Position/Orientation (P)", &interaction_radio, 0 ) ) {
-            m_interaction_mode = 'P';
-        }
-        if ( ImGui::RadioButton( "Joints (J)", &interaction_radio, 1 ) ) {
-            m_interaction_mode = 'J';
-        }
-
-        if ( m_message.length() != 0 ) {
-            ImGui::Text( "\n -- Message -- " );
-            ImGui::Text( "%s",  m_message.c_str() );
-        }
-
 
         ImGui::Text( "Framerate: %.1f FPS", ImGui::GetIO().Framerate );
 
@@ -396,8 +337,7 @@ void Winter::guiLogic()
 static void updateShaderUniforms(
         const ShaderProgram & shader,
         const GeometryNode & node,
-        const glm::mat4 & viewMatrix,
-        const bool do_picking
+        const glm::mat4 & viewMatrix
 ) {
 
     shader.enable();
@@ -408,18 +348,7 @@ static void updateShaderUniforms(
         glUniformMatrix4fv(location, 1, GL_FALSE, value_ptr(modelView));
         CHECK_GL_ERRORS;
 
-        if ( do_picking ) {
-
-            unsigned int idx = node.m_nodeId;
-            float r = float(idx&0xff) / 255.0f;
-            float g = float((idx>>8)&0xff) / 255.0f;
-            float b = float((idx>>16)&0xff) / 255.0f;
-
-            location = shader.getUniformLocation("material.kd");
-            glUniform3f( location, r, g, b );
-            CHECK_GL_ERRORS;
-
-        } else {
+        {
             //-- Set NormMatrix:
             location = shader.getUniformLocation("NormalMatrix");
             mat3 normalMatrix = glm::transpose(glm::inverse(mat3(modelView)));
@@ -456,35 +385,10 @@ static void updateShaderUniforms(
  * Called once per frame, after guiLogic().
  */
 void Winter::draw() {
-
-    if ( m_z_buffer ) {
-        glEnable( GL_DEPTH_TEST );
-    }
-
-    if ( m_frontface_culling && m_backface_culling ) {
-        glEnable( GL_CULL_FACE );
-        glCullFace( GL_FRONT_AND_BACK );
-
-    } else if ( m_frontface_culling ) {
-        glEnable( GL_CULL_FACE );
-        glCullFace( GL_FRONT );
-
-    } else if ( m_backface_culling ) {
-        glEnable( GL_CULL_FACE );
-        glCullFace( GL_BACK );
-    } else {
-        glDisable( GL_CULL_FACE );
-    }
-
+    glEnable( GL_DEPTH_TEST );
+    glCullFace( GL_BACK );
     renderSceneGraph(*m_rootNode);
 
-    // is disable idempotent?
-    glDisable( GL_DEPTH_TEST );
-    glDisable( GL_CULL_FACE );
-
-    if ( m_display_arc ) {
-        renderArcCircle();
-    }
 }
 
 void Winter::renderSceneGraph(const SceneNode &root) {
@@ -528,7 +432,7 @@ void Winter::renderJointGraph(const SceneNode *root, glm::mat4 M ) {
 void Winter::renderGeometryGraph(const SceneNode *root, glm::mat4 M ) {
     const GeometryNode * geometryNode = static_cast<const GeometryNode *>(root);
 
-    updateShaderUniforms(m_shader, *geometryNode, M, m_do_picking);
+    updateShaderUniforms(m_shader, *geometryNode, M);
 
 
     // Get the BatchInfo corresponding to the GeometryNode's unique MeshId.
@@ -607,70 +511,6 @@ bool Winter::mouseMoveEvent (
     bool eventHandled(false);
 
     if ( !ImGui::IsMouseHoveringAnyWindow() ) {
-
-        float delta_x = xPos - m_mouse_x;
-        float delta_y = yPos - m_mouse_y;
-
-        if ( m_interaction_mode == 'P' ) {
-
-            if( m_left_mouse_key_down ) {
-                mat4 trans;
-                trans = glm::translate(trans, vec3(delta_x/250, -delta_y/200, 0));
-                m_view = trans*m_view;
-
-                eventHandled = true;
-            }
-
-            if( m_middle_mouse_key_down ) {
-                mat4 trans;
-                trans = glm::translate(trans, vec3(0, 0, delta_y/100));
-                m_view = trans*m_view;
-
-                eventHandled = true;
-            }
-
-            if( m_right_mouse_key_down ) {
-                vec3 va = get_arcball_vector( m_mouse_x, m_mouse_y );
-                vec3 vb = get_arcball_vector( xPos,  yPos );
-
-                float angle = acos( std::min(1.0f, dot(va, vb)) ) / 10;
-                vec3 axis_in_camera_coord = cross(va, vb);
-
-                if ( abs(axis_in_camera_coord.x) > 1e-5 ||
-                        abs(axis_in_camera_coord.y) > 1e-5 ||
-                        abs(axis_in_camera_coord.z) > 13-5) {
-                    vec4 axis_in_view_frame( axis_in_camera_coord, 0 );
-                    vec4 axis_in_world_frame = inverse( m_view ) * axis_in_view_frame;
-
-                    mat4 rot;
-                    rot = rotate( rot, degrees(angle), vec3(axis_in_world_frame) );
-                    m_sphereNode->trans = rot * m_sphereNode->trans;
-                }
-
-
-                eventHandled = true;
-            }
-        }
-
-        if ( m_interaction_mode == 'J' ) {
-
-            if( m_middle_mouse_key_down ) {
-                if ( m_cmd_index > 0 ) {
-                    m_cmds[ m_cmd_index-1 ].update( 'x', delta_y/50*2*3.1415926 );
-                }
-            }
-
-            if( m_right_mouse_key_down ) {
-                if ( m_cmd_index > 0 ) {
-                    m_cmds[ m_cmd_index-1 ].update( 'y', delta_x/50*2*3.1415926 );
-                }
-            }
-        }
-
-
-        m_mouse_x = xPos;
-        m_mouse_y = yPos;
-
     }
 
     return eventHandled;
@@ -688,127 +528,6 @@ bool Winter::mouseButtonInputEvent (
     bool eventHandled(false);
 
     if ( !ImGui::IsMouseHoveringAnyWindow() ) {
-
-        double xPos, yPos;
-        glfwGetCursorPos( m_window, &xPos, &yPos );
-
-        if ( button == GLFW_MOUSE_BUTTON_LEFT && actions == GLFW_PRESS ) {
-            m_mouse_x = xPos;
-            m_mouse_y = yPos;
-            m_left_mouse_key_down = true;
-            eventHandled = true;
-        }
-
-        if ( button == GLFW_MOUSE_BUTTON_LEFT && actions == GLFW_RELEASE ) {
-            m_mouse_x = xPos;
-            m_mouse_y = yPos;
-            m_left_mouse_key_down = false;
-            eventHandled = true;
-        }
-
-        if ( button == GLFW_MOUSE_BUTTON_MIDDLE && actions == GLFW_PRESS ) {
-            m_mouse_x = xPos;
-            m_mouse_y = yPos;
-            m_middle_mouse_key_down = true;
-            eventHandled = true;
-        }
-
-        if ( button == GLFW_MOUSE_BUTTON_MIDDLE && actions == GLFW_RELEASE ) {
-            m_mouse_x = xPos;
-            m_mouse_y = yPos;
-            m_middle_mouse_key_down = false;
-            eventHandled = true;
-        }
-
-        if ( button == GLFW_MOUSE_BUTTON_RIGHT && actions == GLFW_PRESS ) {
-            m_mouse_x = xPos;
-            m_mouse_y = yPos;
-            m_right_mouse_key_down = true;
-            eventHandled = true;
-        }
-
-        if ( button == GLFW_MOUSE_BUTTON_RIGHT && actions == GLFW_RELEASE ) {
-            m_mouse_x = xPos;
-            m_mouse_y = yPos;
-            m_right_mouse_key_down = false;
-            eventHandled = true;
-        }
-
-
-        if ( m_interaction_mode == 'J' ) {
-            if (button == GLFW_MOUSE_BUTTON_LEFT && actions == GLFW_PRESS) {
-
-                m_do_picking = true;
-
-                uploadCommonSceneUniforms();
-                glClearColor(1.0, 1.0, 1.0, 1.0 );
-                glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-                glClearColor(0.35, 0.35, 0.35, 1.0);
-
-                draw();
-                // I don't know if these are really necessary anymore.
-                // glFlush();
-                // glFinish();
-                CHECK_GL_ERRORS;
-
-                xPos *= double(m_framebufferWidth) / double(m_windowWidth);
-                yPos = m_windowHeight - yPos;
-                yPos *= double(m_framebufferHeight) / double(m_windowHeight);
-
-                GLubyte buffer[ 4 ] = { 0, 0, 0, 0 };
-                glReadBuffer( GL_BACK );
-                glReadPixels( int(xPos), int(yPos), 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, buffer );
-                CHECK_GL_ERRORS;
-
-                // Reassemble the object ID.
-                unsigned int obj_id = buffer[0] + (buffer[1] << 8) + (buffer[2] << 16);
-
-                SceneNode* body_part = m_rootNode->get_child_by_id( obj_id );
-
-                // a node is selected and direct parent is a joint
-                if ( nullptr != body_part
-                         && nullptr != body_part->parent
-                         && NodeType::JointNode == body_part->parent->m_nodeType ) {
-
-                    assert( nullptr != body_part->parent->parent );
-
-                    JointNode *joint = (JointNode*) body_part->parent;
-                    if ( !joint->isSelected ) {
-                        m_selected_joints.insert( joint );
-                        joint->isSelected = true;
-                        joint->parent->isSelected = true;
-
-                    } else {
-                        m_selected_joints.erase( joint );
-                        joint->isSelected = false;
-                        joint->parent->isSelected = false;
-
-                    }
-                }
-                m_do_picking = false;
-                CHECK_GL_ERRORS;
-            }
-
-
-            if ( m_selected_joints.size() != 0 ) {
-                if ( ( button == GLFW_MOUSE_BUTTON_MIDDLE
-                        || button == GLFW_MOUSE_BUTTON_RIGHT )
-                      && actions == GLFW_PRESS ) {
-
-                    while ( m_cmds.size() > m_cmd_index ) {
-                        m_cmds.pop_back();
-                    }
-
-                    RotCommand cmd( m_selected_joints );
-                    m_cmds.push_back( cmd );
-                    m_cmd_index += 1;
-                    eventHandled = true;
-                }
-
-            }
-
-        }
-
     }
 
     return eventHandled;
@@ -823,8 +542,6 @@ bool Winter::mouseScrollEvent (
         double yOffSet
 ) {
     bool eventHandled(false);
-
-    // Fill in with event handling code...
 
     return eventHandled;
 }
@@ -854,198 +571,7 @@ bool Winter::keyInputEvent (
     bool eventHandled(false);
 
     if( action == GLFW_PRESS ) {
-
-        if( key == GLFW_KEY_M ) {
-            show_gui = !show_gui;
-            eventHandled = true;
-        }
-
-        if ( key == GLFW_KEY_I ) {
-            resetPosition();
-            eventHandled = true;
-        }
-
-        if ( key == GLFW_KEY_O ) {
-            resetOrientation();
-            eventHandled = true;
-        }
-
-        if ( key == GLFW_KEY_N ) {
-            resetJoints();
-            eventHandled = true;
-        }
-
-        if ( key == GLFW_KEY_A ) {
-            resetAll();
-            eventHandled = true;
-        }
-
-        if ( key == GLFW_KEY_Q ) {
-            glfwSetWindowShouldClose(m_window, GL_TRUE);
-            eventHandled = true;
-        }
-
-        if ( key == GLFW_KEY_P ) {
-            m_interaction_mode = 'P';
-            interaction_radio = 0;
-            eventHandled = true;
-        }
-
-        if ( key == GLFW_KEY_J ) {
-            m_interaction_mode = 'J';
-            interaction_radio = 1;
-            eventHandled = true;
-        }
-
-        if ( key == GLFW_KEY_U ) {
-            undo();
-            eventHandled = true;
-        }
-
-        if ( key == GLFW_KEY_R ) {
-            redo();
-            eventHandled = true;
-        }
-
-        if ( key == GLFW_KEY_C ) {
-            m_display_arc = !m_display_arc;
-            eventHandled = true;
-        }
-        if ( key == GLFW_KEY_Z ) {
-            m_z_buffer = !m_z_buffer;
-            eventHandled = true;
-        }
-        if ( key == GLFW_KEY_B ) {
-            m_backface_culling = !m_backface_culling;
-            eventHandled = true;
-        }
-        if ( key == GLFW_KEY_F ) {
-            m_frontface_culling = !m_frontface_culling;
-            eventHandled = true;
-        }
     }
 
     return eventHandled;
-}
-
-// procedure refering
-// https://en.wikibooks.org/wiki/OpenGL_Programming/Modern_OpenGL_Tutorial_Arcball
-vec3 Winter::get_arcball_vector( int x, int y ) {
-
-    vec3 P( 1.0 * x/m_windowWidth*2 - 1.0,
-            1.0 * y/m_windowHeight*2 - 1.0,
-            0);
-
-    P.y = -P.y;
-
-    float OP_squared = P.x * P.x + P.y * P.y;
-    if (OP_squared <= 1*1) {
-        P.z = sqrt(1*1 - OP_squared);  // Pythagore
-    } else {
-        P = glm::normalize(P);  // nearest point
-    }
-    return P;
-}
-
-void Winter::resetPosition() {
-    initViewMatrix();
-}
-
-void Winter::resetOrientation() {
-    m_sphereNode->reset_transform();
-}
-
-void Winter::resetJoints() {
-    while ( m_cmd_index != 0 ) {
-        m_cmds[ m_cmd_index-1].undo();
-        m_cmd_index -= 1;
-    }
-    m_cmds.clear();
-}
-
-void Winter::resetAll() {
-    m_interaction_mode = 'P';
-    interaction_radio = 0;
-    m_do_picking = false;
-
-    resetPosition();
-    if ( m_sphereNode != nullptr ) resetOrientation();
-    cout<<"begin"<<endl;
-    resetJoints();
-    cout<<"end"<<endl;
-
-    m_display_arc = false;
-    m_z_buffer = true;
-    m_backface_culling = false;
-    m_frontface_culling = false;
-
-    m_cmd_index = 0;
-    m_message = "";
-}
-void Winter::undo() {
-    if ( m_cmd_index > 0 ) {
-        m_cmd_index -= 1;
-        m_cmds[ m_cmd_index ].undo();
-        m_message = "";
-    } else {
-        m_message = "No More Actions To Undo";
-    }
-}
-void Winter::redo() {
-    if ( m_cmd_index < m_cmds.size() ) {
-        m_cmds[ m_cmd_index ].redo();
-        m_cmd_index += 1;
-        m_message = "";
-    } else {
-        m_message = "No More Actions To Redo";
-    }
-}
-
-
-RotCommand::RotCommand( std::set<SceneNode*> nodes, char axis, float angle ) {
-    for ( auto node : nodes ) {
-        mat4 M = node->trans;
-        m_node.push_back( node );
-        m_initial.push_back( M );
-        m_final.push_back( M );
-    }
-    update( axis, angle );
-}
-
-RotCommand::RotCommand( std::set<SceneNode*> nodes ) {
-    for ( auto node : nodes ) {
-        mat4 M = node->trans;
-        m_node.push_back( node );
-        m_initial.push_back( M );
-        m_final.push_back( M );
-    }
-}
-
-void RotCommand::update( char axis, float angle ) {
-    if ( axis == 'y' ) {
-        for ( int i=0; i<m_node.size(); i++ ) {
-            if ( m_node[i]->m_name == "upper_neck_joint" ) {
-                auto head = m_node[i]->children.front();
-                head->rotate( 'y', angle);
-                break;
-            }
-        }
-    } else {
-        for ( int i=0; i<m_node.size(); i++ ) {
-            m_node[i]->rotate( axis, angle );
-            m_final[i] = m_node[i]->get_transform();
-        }
-    }
-}
-
-void RotCommand::redo() {
-    for ( int i=0; i<m_node.size(); i++ ) {
-        m_node[i]->set_transform( m_final[i] );
-    }
-}
-
-void RotCommand::undo() {
-    for ( int i=0; i<m_node.size(); i++ ) {
-        m_node[i]->set_transform( m_initial[i] );
-    }
 }
