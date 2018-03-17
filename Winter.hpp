@@ -56,7 +56,6 @@ protected:
     void renderSceneGraph(const SceneNode *node, glm::mat4 M);
     void renderJointGraph(const SceneNode *node, glm::mat4 M);
     void renderGeometryGraph(const SceneNode *node, glm::mat4 M );
-    void renderArcCircle();
 
     glm::mat4 m_perpsective;
     glm::mat4 m_view;
@@ -64,26 +63,18 @@ protected:
     LightSource m_light;
 
     //-- GL resources for mesh geometry data:
-    GLuint m_vao_meshData;
-    GLuint m_vbo_vertexPositions;
-    GLuint m_vbo_vertexNormals;
-    GLint m_positionAttribLocation;
-    GLint m_normalAttribLocation;
-    ShaderProgram m_shader;
-
-    //-- GL resources for trackball circle geometry:
-    GLuint m_vbo_arcCircle;
-    GLuint m_vao_arcCircle;
-    GLint m_arc_positionAttribLocation;
-    ShaderProgram m_shader_arcCircle;
+    GLuint m_vao_puppet_meshData;
+    GLuint m_vbo_puppet_vertexPositions;
+    GLuint m_vbo_puppet_vertexNormals;
+    GLint m_puppet_positionAttribLocation;
+    GLint m_puppet_normalAttribLocation;
+    ShaderProgram m_puppet_shader;
 
     // BatchInfoMap is an associative container that maps a unique MeshId to a BatchInfo
     // object. Each BatchInfo object contains an index offset and the number of indices
     // required to render the mesh with identifier MeshId.
     BatchInfoMap m_batchInfoMap;
-
     std::string m_luaSceneFile;
-
-    std::shared_ptr<SceneNode> m_rootNode;
+    std::shared_ptr<SceneNode> m_puppet;
 
 };
