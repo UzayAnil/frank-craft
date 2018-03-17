@@ -32,7 +32,11 @@ Winter::Winter(const std::string & luaSceneFile)
       m_puppet_normalAttribLocation(0),
       m_vao_puppet_meshData(0),
       m_vbo_puppet_vertexPositions(0),
-      m_vbo_puppet_vertexNormals(0) {
+      m_vbo_puppet_vertexNormals(0),
+      m_vao_cube(0),
+      m_vbo_cube(0),
+      m_ebo_cube(0)
+{
 }
 
 //----------------------------------------------------------------------------------------
@@ -53,34 +57,94 @@ void Winter::init()
 
     createShaderProgram();
 
-    glGenVertexArrays(1, &m_vao_puppet_meshData);
-    enableVertexShaderInputSlots();
+    // A3 puppet manipulation
+    {
+        glGenVertexArrays(1, &m_vao_puppet_meshData);
+        enableVertexShaderInputSlots();
 
-    processLuaSceneFile(m_luaSceneFile);
+        processLuaSceneFile(m_luaSceneFile);
 
-    // Load and decode all .obj files at once here.  You may add additional .obj files to
-    // this list in order to support rendering additional mesh types.  All vertex
-    // positions, and normals will be extracted and stored within the MeshConsolidator
-    // class.
-    unique_ptr<MeshConsolidator> meshConsolidator (new MeshConsolidator{
-            getAssetFilePath("cube.obj"),
-            getAssetFilePath("sphere.obj"),
-            getAssetFilePath("suzanne.obj")
-    });
+        // Load and decode all .obj files at once here.  You may add additional .obj files to
+        // this list in order to support rendering additional mesh types.  All vertex
+        // positions, and normals will be extracted and stored within the MeshConsolidator
+        // class.
+        unique_ptr<MeshConsolidator> meshConsolidator (new MeshConsolidator{
+                getAssetFilePath("cube.obj"),
+                getAssetFilePath("sphere.obj"),
+                getAssetFilePath("suzanne.obj")
+        });
 
 
-    // Acquire the BatchInfoMap from the MeshConsolidator.
-    meshConsolidator->getBatchInfoMap(m_batchInfoMap);
+        // Acquire the BatchInfoMap from the MeshConsolidator.
+        meshConsolidator->getBatchInfoMap(m_batchInfoMap);
 
-    // Take all vertex data within the MeshConsolidator and upload it to VBOs on the GPU.
-    uploadVertexDataToVbos(*meshConsolidator);
+        // Take all vertex data within the MeshConsolidator and upload it to VBOs on the GPU.
+        uploadVertexDataToVbos(*meshConsolidator);
+        mapVboDataToVertexShaderInputLocations();
+    }
 
-    mapVboDataToVertexShaderInputLocations();
+    {
+
+        float cube_verts[] = {
+            0.0f, 0.0f, 0.0f, // y=0, top left
+            1.0f, 0.0f, 0.0f, // y=0, top right
+            1.0f, 0.0f, 1.0f, // y=0, bot right
+            0.0f, 0.0f, 1.0f, // y=0, bot left
+
+            0.0f, 1.0f, 0.0f, // y=1, top left
+            1.0f, 1.0f, 0.0f, // y=1, top right
+            1.0f, 1.0f, 1.0f, // y=1, bot right
+            0.0f, 1.0f, 1.0f  // y=1, bot left
+        };
+        GLuint indices[] = {
+            0, 1, 2, //bottom square
+            2, 3, 0,
+
+            4, 5, 6, //bottom square
+            6, 7, 4,
+
+            0, 4, 7, //side square 1
+            7, 3, 0,
+
+            1, 5, 6, //side square 2
+            6, 2, 1,
+
+            0, 1, 5, //side square 3
+            5, 4, 0,
+
+            3, 2, 6, //side square 4
+            6, 7, 3,
+        };
+
+        glGenVertexArrays(1, &m_vao_cube);
+        glBindVertexArray( m_vao_cube );
+
+        // Create the cube vertex buffer
+        glGenBuffers( 1, &m_vbo_cube );
+        glBindBuffer( GL_ARRAY_BUFFER, m_vbo_cube );
+        glBufferData( GL_ARRAY_BUFFER, sizeof(cube_verts), cube_verts, GL_STATIC_DRAW );
+
+        // Create the cube vertex element buffer
+        glGenBuffers( 1, &m_ebo_cube );
+        glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, m_ebo_cube );
+        glBufferData( GL_ELEMENT_ARRAY_BUFFER, sizeof(indices),
+            indices, GL_STATIC_DRAW );
+
+
+        // Specify the means of extracting the position values properly.
+        GLint posAttrib = m_cube_shader.getAttribLocation( "position" );
+        glEnableVertexAttribArray( posAttrib );
+        glVertexAttribPointer( posAttrib, 3, GL_FLOAT, GL_FALSE, 0, nullptr );
+
+        glBindVertexArray( 0 );
+        glBindBuffer( GL_ARRAY_BUFFER, 0 );
+        glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, 0 );
+        CHECK_GL_ERRORS;
+    }
+
 
     initPerspectiveMatrix();
-
     initViewMatrix();
-
     initLightSources();
 
 
@@ -113,6 +177,11 @@ void Winter::createShaderProgram()
     m_puppet_shader.attachVertexShader( getAssetFilePath("VertexShader.vs").c_str() );
     m_puppet_shader.attachFragmentShader( getAssetFilePath("FragmentShader.fs").c_str() );
     m_puppet_shader.link();
+
+    m_cube_shader.generateProgramObject();
+    m_cube_shader.attachVertexShader( getAssetFilePath("CubeVertexShader.vs").c_str() );
+    m_cube_shader.attachFragmentShader( getAssetFilePath("CubeFragmentShader.fs").c_str() );
+    m_cube_shader.link();
 }
 
 //----------------------------------------------------------------------------------------
@@ -132,7 +201,6 @@ void Winter::enableVertexShaderInputSlots()
 
         CHECK_GL_ERRORS;
     }
-
 
     // Restore defaults
     glBindVertexArray(0);
@@ -200,17 +268,21 @@ void Winter::mapVboDataToVertexShaderInputLocations()
 }
 
 //----------------------------------------------------------------------------------------
-void Winter::initPerspectiveMatrix()
-{
+void Winter::initPerspectiveMatrix() {
     float aspect = ((float)m_windowWidth) / m_windowHeight;
-    m_perpsective = glm::perspective(degreesToRadians(60.0f), aspect, 0.1f, 100.0f);
+    //m_perpsective = glm::perspective(degreesToRadians(60.0f), aspect, 0.1f, 100.0f);
+    m_perpsective = glm::perspective(degreesToRadians(45.0f), aspect, 1.0f, 1000.0f);
 }
 
 
 //----------------------------------------------------------------------------------------
 void Winter::initViewMatrix() {
-    m_view = glm::lookAt(vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, -1.0f),
-            vec3(0.0f, 1.0f, 0.0f));
+    //m_view = glm::lookAt(vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, -1.0f),
+            //vec3(0.0f, 1.0f, 0.0f));
+    m_view = glm::lookAt(
+        glm::vec3( 0.0f, 2.0f, -float(4)*2.0*M_SQRT1_2 ),
+        glm::vec3( 0.0f, 2.0f, 0.0f ),
+        glm::vec3( 0.0f, 1.0f, 0.0f ) );
 }
 
 //----------------------------------------------------------------------------------------
@@ -246,6 +318,22 @@ void Winter::uploadCommonSceneUniforms() {
         }
     }
     m_puppet_shader.disable();
+
+    m_cube_shader.enable();
+    {
+        cout<<"P"<<m_perpsective<<endl;
+        //-- Set Perpsective matrix uniform for the scene:
+        GLint location = m_cube_shader.getUniformLocation("P");
+        glUniformMatrix4fv(location, 1, GL_FALSE, value_ptr(m_perpsective));
+        CHECK_GL_ERRORS;
+
+        cout<<"V"<<m_view<<endl;
+        location = m_cube_shader.getUniformLocation("V");
+        glUniformMatrix4fv(location, 1, GL_FALSE, value_ptr(m_view));
+        CHECK_GL_ERRORS;
+
+    }
+    m_cube_shader.disable();
 }
 
 //----------------------------------------------------------------------------------------
@@ -339,10 +427,35 @@ static void updateShaderUniforms(
  * Called once per frame, after guiLogic().
  */
 void Winter::draw() {
-    glEnable( GL_DEPTH_TEST );
-    glCullFace( GL_BACK );
+    //glEnable( GL_DEPTH_TEST );
+    //glCullFace( GL_BACK );
+    //glEnable(GL_CULL_FACE);
 
-    //renderSceneGraph(*m_puppet);
+
+    {
+        m_cube_shader.enable();
+        glBindVertexArray( m_vao_cube );
+
+        GLint location = m_cube_shader.getUniformLocation("M");
+        mat4 M;
+        glUniformMatrix4fv( location, 1, GL_FALSE, value_ptr( M ) );
+
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        glDrawElements( GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+        glBindVertexArray( 0 );
+        CHECK_GL_ERRORS;
+        m_cube_shader.disable();
+    }
+
+
+
+    {
+        m_puppet_shader.enable();
+        //renderSceneGraph(*m_puppet);
+        m_puppet_shader.disable();
+    }
 
 }
 

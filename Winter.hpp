@@ -70,6 +70,12 @@ protected:
     GLint m_puppet_normalAttribLocation;
     ShaderProgram m_puppet_shader;
 
+    //-- GL resources for cube
+    GLuint m_vao_cube;
+    GLuint m_vbo_cube;
+    GLuint m_ebo_cube;
+    ShaderProgram m_cube_shader;
+
     // BatchInfoMap is an associative container that maps a unique MeshId to a BatchInfo
     // object. Each BatchInfo object contains an index offset and the number of indices
     // required to render the mesh with identifier MeshId.
