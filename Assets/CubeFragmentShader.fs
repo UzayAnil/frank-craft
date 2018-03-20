@@ -13,7 +13,7 @@ void main() {
     } else {
         fragColour = texture( tex, vec2(
             (fract(texcoord.x + texcoord.z) + texcoord.w)/16.0,
-            fract(texcoord.y)/16.0
+            (1-fract(texcoord.y))/16.0
             ));
     }
 }

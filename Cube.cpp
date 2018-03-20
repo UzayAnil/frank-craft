@@ -73,9 +73,9 @@ void Chunk::update() {
                 uint8_t bottom;
                 uint8_t side;
                 if ( grid[x][y][z] == BlockType::Grass ) {
-                    top = 0;
-                    side = 2;
-                    bottom = 3;
+                    top = 0-16;
+                    side = 3;
+                    bottom = 2-16;
                 }
 
                 //if(is_visible && z != 0 && grid[x][y][z] == grid[x][y][z - 1]) {
@@ -111,9 +111,9 @@ void Chunk::update() {
                 uint8_t bottom;
                 uint8_t side;
                 if ( grid[x][y][z] == BlockType::Grass ) {
-                    top = 0;
-                    side = 2;
-                    bottom = 3;
+                    top = 0-16;
+                    side = 3;
+                    bottom = 2-16;
                 }
 
                 //if(is_visible && z != 0 && grid[x][y][z] == grid[x][y][z - 1]) {
@@ -147,9 +147,9 @@ void Chunk::update() {
                 uint8_t bottom;
                 uint8_t side;
                 if ( grid[x][y][z] == BlockType::Grass ) {
-                    top = 0;
-                    side = 2;
-                    bottom = 3;
+                    top = 0-16;
+                    side = 3;
+                    bottom = 2-16;
                 }
 
                 //if(is_visible && z != 0 && grid[x][y][z] == grid[x][y][z - 1]) {
@@ -183,9 +183,9 @@ void Chunk::update() {
                 uint8_t bottom;
                 uint8_t side;
                 if ( grid[x][y][z] == BlockType::Grass ) {
-                    top = 0;
-                    side = 2;
-                    bottom = 3;
+                    top = 0-16;
+                    side = 3;
+                    bottom = 2-16;
                 }
 
                 //if(is_visible && z != 0 && grid[x][y][z] == grid[x][y][z - 1]) {
@@ -219,9 +219,9 @@ void Chunk::update() {
                 uint8_t bottom;
                 uint8_t side;
                 if ( grid[x][y][z] == BlockType::Grass ) {
-                    top = 0;
-                    side = 2;
-                    bottom = 3;
+                    top = 0-16;
+                    side = 3;
+                    bottom = 2-16;
                 }
 
                 //if(is_visible && y != 0 && grid[x][y][z] == grid[x][y - 1][z]) {
@@ -255,9 +255,9 @@ void Chunk::update() {
                 uint8_t bottom;
                 uint8_t side;
                 if ( grid[x][y][z] == BlockType::Grass ) {
-                    top = 0;
-                    side = 2;
-                    bottom = 3;
+                    top = 0-16;
+                    side = 3;
+                    bottom = 2-16;
                 }
 
                 //if(is_visible && y != 0 && grid[x][y][z] == grid[x][y - 1][z]) {
