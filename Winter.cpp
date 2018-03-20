@@ -24,6 +24,8 @@ const size_t CIRCLE_PTS = 48;
 static int interaction_radio = 0;
 
 
+
+
 //----------------------------------------------------------------------------------------
 // Constructor
 Winter::Winter(const std::string & luaSceneFile)
@@ -32,10 +34,7 @@ Winter::Winter(const std::string & luaSceneFile)
       m_puppet_normalAttribLocation(0),
       m_vao_puppet_meshData(0),
       m_vbo_puppet_vertexPositions(0),
-      m_vbo_puppet_vertexNormals(0),
-      m_vao_cube(0),
-      m_vbo_cube(0),
-      m_ebo_cube(0)
+      m_vbo_puppet_vertexNormals(0)
 {
 }
 
@@ -84,64 +83,17 @@ void Winter::init()
     }
 
     {
+        chunk.init(
+            getAssetFilePath("CubeVertexShader.vs"),
+            getAssetFilePath("CubeFragmentShader.fs") );
+        chunk.set(0, 0, 0, BlockType::Grass);
 
-        float cube_verts[] = {
-            0.0f, 0.0f, 0.0f, // y=0, top left
-            1.0f, 0.0f, 0.0f, // y=0, top right
-            1.0f, 0.0f, 1.0f, // y=0, bot right
-            0.0f, 0.0f, 1.0f, // y=0, bot left
+        chunk.set(0, 0, 2, BlockType::Grass);
 
-            0.0f, 1.0f, 0.0f, // y=1, top left
-            1.0f, 1.0f, 0.0f, // y=1, top right
-            1.0f, 1.0f, 1.0f, // y=1, bot right
-            0.0f, 1.0f, 1.0f  // y=1, bot left
-        };
-        GLuint indices[] = {
-            0, 1, 2, //bottom square
-            2, 3, 0,
+        chunk.set(2, 0, 2, BlockType::Grass);
 
-            4, 5, 6, //bottom square
-            6, 7, 4,
-
-            0, 4, 7, //side square 1
-            7, 3, 0,
-
-            1, 5, 6, //side square 2
-            6, 2, 1,
-
-            0, 1, 5, //side square 3
-            5, 4, 0,
-
-            3, 2, 6, //side square 4
-            6, 7, 3,
-        };
-
-        glGenVertexArrays(1, &m_vao_cube);
-        glBindVertexArray( m_vao_cube );
-
-        // Create the cube vertex buffer
-        glGenBuffers( 1, &m_vbo_cube );
-        glBindBuffer( GL_ARRAY_BUFFER, m_vbo_cube );
-        glBufferData( GL_ARRAY_BUFFER, sizeof(cube_verts), cube_verts, GL_STATIC_DRAW );
-
-        // Create the cube vertex element buffer
-        glGenBuffers( 1, &m_ebo_cube );
-        glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, m_ebo_cube );
-        glBufferData( GL_ELEMENT_ARRAY_BUFFER, sizeof(indices),
-            indices, GL_STATIC_DRAW );
-
-
-        // Specify the means of extracting the position values properly.
-        GLint posAttrib = m_cube_shader.getAttribLocation( "position" );
-        glEnableVertexAttribArray( posAttrib );
-        glVertexAttribPointer( posAttrib, 3, GL_FLOAT, GL_FALSE, 0, nullptr );
-
-        glBindVertexArray( 0 );
-        glBindBuffer( GL_ARRAY_BUFFER, 0 );
-        glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, 0 );
-        CHECK_GL_ERRORS;
+        chunk.set(2, 4, 2, BlockType::Grass);
     }
-
 
     initPerspectiveMatrix();
     initViewMatrix();
@@ -178,10 +130,6 @@ void Winter::createShaderProgram()
     m_puppet_shader.attachFragmentShader( getAssetFilePath("FragmentShader.fs").c_str() );
     m_puppet_shader.link();
 
-    m_cube_shader.generateProgramObject();
-    m_cube_shader.attachVertexShader( getAssetFilePath("CubeVertexShader.vs").c_str() );
-    m_cube_shader.attachFragmentShader( getAssetFilePath("CubeFragmentShader.fs").c_str() );
-    m_cube_shader.link();
 }
 
 //----------------------------------------------------------------------------------------
@@ -319,21 +267,7 @@ void Winter::uploadCommonSceneUniforms() {
     }
     m_puppet_shader.disable();
 
-    m_cube_shader.enable();
-    {
-        cout<<"P"<<m_perpsective<<endl;
-        //-- Set Perpsective matrix uniform for the scene:
-        GLint location = m_cube_shader.getUniformLocation("P");
-        glUniformMatrix4fv(location, 1, GL_FALSE, value_ptr(m_perpsective));
-        CHECK_GL_ERRORS;
-
-        cout<<"V"<<m_view<<endl;
-        location = m_cube_shader.getUniformLocation("V");
-        glUniformMatrix4fv(location, 1, GL_FALSE, value_ptr(m_view));
-        CHECK_GL_ERRORS;
-
-    }
-    m_cube_shader.disable();
+    chunk.updateUniform( m_perpsective, m_view );
 }
 
 //----------------------------------------------------------------------------------------
@@ -427,33 +361,16 @@ static void updateShaderUniforms(
  * Called once per frame, after guiLogic().
  */
 void Winter::draw() {
-    //glEnable( GL_DEPTH_TEST );
-    //glCullFace( GL_BACK );
-    //glEnable(GL_CULL_FACE);
-
+    glEnable( GL_DEPTH_TEST );
+    glEnable(GL_CULL_FACE);
 
     {
-        m_cube_shader.enable();
-        glBindVertexArray( m_vao_cube );
-
-        GLint location = m_cube_shader.getUniformLocation("M");
-        mat4 M;
-        glUniformMatrix4fv( location, 1, GL_FALSE, value_ptr( M ) );
-
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        glDrawElements( GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-        glBindVertexArray( 0 );
-        CHECK_GL_ERRORS;
-        m_cube_shader.disable();
+        chunk.render();
     }
-
-
 
     {
         m_puppet_shader.enable();
-        //renderSceneGraph(*m_puppet);
+        renderSceneGraph(*m_puppet);
         m_puppet_shader.disable();
     }
 

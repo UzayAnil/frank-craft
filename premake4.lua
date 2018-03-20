@@ -6,7 +6,8 @@ includeDirList = {
     "../shared",
     "../shared/include",
     "../shared/gl3w",
-    "../shared/imgui"
+    "../shared/imgui",
+    "../shared/lodepng"
 }
 
 libDirectories = { 
@@ -18,9 +19,9 @@ if os.get() == "macosx" then
     linkLibs = {
         "cs488-framework",
         "imgui",
+        "lodepng",
         "glfw3",
         "lua"
-
     }
 end
 
@@ -28,6 +29,7 @@ if os.get() == "linux" then
     linkLibs = {
         "cs488-framework",
         "imgui",
+        "lodepng",
         "glfw3",
         "lua",
         "GL",

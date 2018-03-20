@@ -1,7 +1,19 @@
 #version 330
 
 out vec4 fragColour;
+uniform sampler2D tex;
+varying vec4 texcoord;
 
 void main() {
-    fragColour = vec4(.7, .4, .7, 1);
+    if ( texcoord.w < 0 ) {
+        fragColour = texture( tex, vec2(
+            (fract(texcoord.x) + texcoord.w)/16.0,
+            fract(texcoord.z)/16.0
+            ));
+    } else {
+        fragColour = texture( tex, vec2(
+            (fract(texcoord.x + texcoord.z) + texcoord.w)/16.0,
+            fract(texcoord.y)/16.0
+            ));
+    }
 }

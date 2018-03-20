@@ -1,10 +1,12 @@
 #version 330
 
-uniform mat4 P;
 uniform mat4 V;
-uniform mat4 M;
-in vec3 position;
+uniform mat4 P;
+
+in vec4 pos;
+out vec4 texcoord;
 
 void main() {
-    gl_Position = P * V * M * vec4( position, 1 );
+    texcoord = pos;
+    gl_Position = P * V * vec4( pos.xyz, 1 );
 }

@@ -8,6 +8,7 @@
 #include "SceneNode.hpp"
 #include "JointNode.hpp"
 #include "GeometryNode.hpp"
+#include "Cube.hpp"
 
 #include <glm/glm.hpp>
 #include <memory>
@@ -70,12 +71,6 @@ protected:
     GLint m_puppet_normalAttribLocation;
     ShaderProgram m_puppet_shader;
 
-    //-- GL resources for cube
-    GLuint m_vao_cube;
-    GLuint m_vbo_cube;
-    GLuint m_ebo_cube;
-    ShaderProgram m_cube_shader;
-
     // BatchInfoMap is an associative container that maps a unique MeshId to a BatchInfo
     // object. Each BatchInfo object contains an index offset and the number of indices
     // required to render the mesh with identifier MeshId.
@@ -83,4 +78,6 @@ protected:
     std::string m_luaSceneFile;
     std::shared_ptr<SceneNode> m_puppet;
 
+    // Chunks
+    Chunk chunk;
 };
