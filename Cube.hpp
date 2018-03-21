@@ -17,9 +17,9 @@ enum BlockType {
 class Chunk {
 public:
 
-    static const int SX = 100;
-    static const int SY = 64;
-    static const int SZ = 100;
+    static const int SX = 16;
+    static const int SY = 16;
+    static const int SZ = 16;
 
     Chunk() : vao(0), vbo(0) {
         std::memset(grid, 0, sizeof(grid));
@@ -29,14 +29,13 @@ public:
 
     }
 
-    void init( std::string vert_path, std::string frag_path );
+    void init();
 
     ~Chunk() {
         glDeleteBuffers( 1, &vbo );
         glDeleteVertexArrays( 1, &vao );
 
         delete []vertex;
-        delete shader;
     }
 
     int isblocked( int x1, int y1, int z1, int x2, int y2, int z2 ) {

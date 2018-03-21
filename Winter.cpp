@@ -30,12 +30,11 @@ static int interaction_radio = 0;
 // Constructor
 Winter::Winter(const std::string & luaSceneFile)
     : m_luaSceneFile(luaSceneFile),
-      m_puppet_positionAttribLocation(0),
-      m_puppet_normalAttribLocation(0),
+      //m_puppet_positionAttribLocation(0),
+      //m_puppet_normalAttribLocation(0),
       m_vao_puppet_meshData(0),
       m_vbo_puppet_vertexPositions(0),
-      m_vbo_puppet_vertexNormals(0)
-{
+      m_vbo_puppet_vertexNormals(0) {
 }
 
 //----------------------------------------------------------------------------------------
@@ -51,14 +50,14 @@ Winter::~Winter()
  */
 void Winter::init()
 {
+    shader = PuppetShader::getInstance();
     // Set the background colour.
     glClearColor(0.35, 0.35, 0.35, 1.0);
-
-    createShaderProgram();
 
     // A3 puppet manipulation
     {
         glGenVertexArrays(1, &m_vao_puppet_meshData);
+    shader = PuppetShader::getInstance();
         enableVertexShaderInputSlots();
 
         processLuaSceneFile(m_luaSceneFile);
@@ -83,9 +82,7 @@ void Winter::init()
     }
 
     {
-        chunk.init(
-            getAssetFilePath("CubeVertexShader.vs"),
-            getAssetFilePath("CubeFragmentShader.fs") );
+        chunk.init();
         chunk.genTerrain();
     }
 
@@ -116,15 +113,6 @@ void Winter::processLuaSceneFile(const std::string & filename) {
     }
 }
 
-//----------------------------------------------------------------------------------------
-void Winter::createShaderProgram()
-{
-    m_puppet_shader.generateProgramObject();
-    m_puppet_shader.attachVertexShader( getAssetFilePath("VertexShader.vs").c_str() );
-    m_puppet_shader.attachFragmentShader( getAssetFilePath("FragmentShader.fs").c_str() );
-    m_puppet_shader.link();
-
-}
 
 //----------------------------------------------------------------------------------------
 void Winter::enableVertexShaderInputSlots()
@@ -134,12 +122,10 @@ void Winter::enableVertexShaderInputSlots()
         glBindVertexArray(m_vao_puppet_meshData);
 
         // Enable the vertex shader attribute location for "position" when rendering.
-        m_puppet_positionAttribLocation = m_puppet_shader.getAttribLocation("position");
-        glEnableVertexAttribArray(m_puppet_positionAttribLocation);
+        glEnableVertexAttribArray( shader->posAttrib );
 
         // Enable the vertex shader attribute location for "normal" when rendering.
-        m_puppet_normalAttribLocation = m_puppet_shader.getAttribLocation("normal");
-        glEnableVertexAttribArray(m_puppet_normalAttribLocation);
+        glEnableVertexAttribArray( shader->normAttrib );
 
         CHECK_GL_ERRORS;
     }
@@ -189,12 +175,12 @@ void Winter::mapVboDataToVertexShaderInputLocations()
     // Tell GL how to map data from the vertex buffer "m_vbo_puppet_vertexPositions" into the
     // "position" vertex attribute location for any bound vertex shader program.
     glBindBuffer(GL_ARRAY_BUFFER, m_vbo_puppet_vertexPositions);
-    glVertexAttribPointer(m_puppet_positionAttribLocation, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+    glVertexAttribPointer( shader->posAttrib, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 
     // Tell GL how to map data from the vertex buffer "m_vbo_puppet_vertexNormals" into the
     // "normal" vertex attribute location for any bound vertex shader program.
     glBindBuffer(GL_ARRAY_BUFFER, m_vbo_puppet_vertexNormals);
-    glVertexAttribPointer(m_puppet_normalAttribLocation, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+    glVertexAttribPointer( shader->normAttrib, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 
     //-- Unbind target, and restore default values:
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -225,8 +211,8 @@ void Winter::initViewMatrix() {
         glm::vec3( 0.0f, 2.0f, -float(4)*2.0*M_SQRT1_2 ),
         glm::vec3( 0.0f, 2.0f, 0.0f ),
         glm::vec3( 0.0f, 1.0f, 0.0f ) );
-    m_view = m_view * rotate( mat4(), -float(degreesToRadians(110)), vec3( 1, 0, 0 ) );
-    m_view = m_view * translate( mat4(), vec3(-20, -80, 0) );
+    //m_view = m_view * rotate( mat4(), -float(degreesToRadians(110)), vec3( 1, 0, 0 ) );
+    //m_view = m_view * translate( mat4(), vec3(-20, -80, 0) );
 }
 
 //----------------------------------------------------------------------------------------
@@ -238,30 +224,26 @@ void Winter::initLightSources() {
 
 //----------------------------------------------------------------------------------------
 void Winter::uploadCommonSceneUniforms() {
-    m_puppet_shader.enable();
+    shader->enable();
     {
         //-- Set Perpsective matrix uniform for the scene:
-        GLint location = m_puppet_shader.getUniformLocation("Perspective");
-        glUniformMatrix4fv(location, 1, GL_FALSE, value_ptr(m_perpsective));
+        glUniformMatrix4fv( shader->P, 1, GL_FALSE, value_ptr(m_perpsective));
         CHECK_GL_ERRORS;
 
         {
-            location = m_puppet_shader.getUniformLocation("light.position");
-            glUniform3fv(location, 1, value_ptr(m_light.position));
-            location = m_puppet_shader.getUniformLocation("light.rgbIntensity");
-            glUniform3fv(location, 1, value_ptr(m_light.rgbIntensity));
+            glUniform3fv( shader->lightPosAttrib, 1, value_ptr(m_light.position));
+            glUniform3fv( shader->lightRgbAttrib, 1, value_ptr(m_light.rgbIntensity));
             CHECK_GL_ERRORS;
         }
 
         //-- Set background light ambient intensity
         {
-            location = m_puppet_shader.getUniformLocation("ambientIntensity");
             vec3 ambientIntensity(0.05f);
-            glUniform3fv(location, 1, value_ptr(ambientIntensity));
+            glUniform3fv( shader->ambientAttrib, 1, value_ptr(ambientIntensity));
             CHECK_GL_ERRORS;
         }
     }
-    m_puppet_shader.disable();
+    shader->disable();
 
     chunk.updateUniform( m_perpsective, m_view );
 }
@@ -307,48 +289,43 @@ void Winter::guiLogic()
 //----------------------------------------------------------------------------------------
 // Update mesh specific shader uniforms:
 static void updateShaderUniforms(
-        const ShaderProgram & shader,
         const GeometryNode & node,
         const glm::mat4 & viewMatrix
 ) {
+    PuppetShader *shader = PuppetShader::getInstance();
 
-    shader.enable();
+    shader->enable();
     {
         //-- Set ModelView matrix:
-        GLint location = shader.getUniformLocation("ModelView");
         mat4 modelView = viewMatrix * node.trans;
-        glUniformMatrix4fv(location, 1, GL_FALSE, value_ptr(modelView));
+        glUniformMatrix4fv( shader->MV, 1, GL_FALSE, value_ptr(modelView));
         CHECK_GL_ERRORS;
 
         {
             //-- Set NormMatrix:
-            location = shader.getUniformLocation("NormalMatrix");
             mat3 normalMatrix = glm::transpose(glm::inverse(mat3(modelView)));
-            glUniformMatrix3fv(location, 1, GL_FALSE, value_ptr(normalMatrix));
+            glUniformMatrix3fv( shader->normMatrixAttrib, 1, GL_FALSE, value_ptr(normalMatrix));
             CHECK_GL_ERRORS;
 
 
             //-- Set Material values:
-            location = shader.getUniformLocation("material.kd");
             vec3 kd = node.material.kd;
-
             if ( node.isSelected ) {
                 kd = vec3(0.9, 0.2, 0.2);
             }
+            glUniform3fv( shader->kdAttrib, 1, value_ptr(kd));
+            CHECK_GL_ERRORS;
 
-            glUniform3fv(location, 1, value_ptr(kd));
-            CHECK_GL_ERRORS;
-            location = shader.getUniformLocation("material.ks");
             vec3 ks = node.material.ks;
-            glUniform3fv(location, 1, value_ptr(ks));
+            glUniform3fv( shader->ksAttrib, 1, value_ptr(ks));
             CHECK_GL_ERRORS;
-            location = shader.getUniformLocation("material.shininess");
-            glUniform1f(location, node.material.shininess);
+
+            glUniform1f( shader->shineAttrib, node.material.shininess);
             CHECK_GL_ERRORS;
         }
 
     }
-    shader.disable();
+    shader->disable();
 
 }
 
@@ -365,9 +342,9 @@ void Winter::draw() {
     }
 
     {
-        m_puppet_shader.enable();
+        shader->enable();
         renderSceneGraph(*m_puppet);
-        m_puppet_shader.disable();
+        shader->disable();
     }
 
 }
@@ -413,16 +390,16 @@ void Winter::renderJointGraph(const SceneNode *root, glm::mat4 M ) {
 void Winter::renderGeometryGraph(const SceneNode *root, glm::mat4 M ) {
     const GeometryNode * geometryNode = static_cast<const GeometryNode *>(root);
 
-    updateShaderUniforms(m_puppet_shader, *geometryNode, M);
+    updateShaderUniforms(*geometryNode, M);
 
 
     // Get the BatchInfo corresponding to the GeometryNode's unique MeshId.
     BatchInfo batchInfo = m_batchInfoMap[geometryNode->meshId];
 
     //-- Now render the mesh:
-    m_puppet_shader.enable();
+    shader->enable();
     glDrawArrays(GL_TRIANGLES, batchInfo.startIndex, batchInfo.numIndices);
-    m_puppet_shader.disable();
+    shader->disable();
 
     M = M * root->trans;
     for (const SceneNode * node : root->children) {

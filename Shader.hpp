@@ -22,8 +22,35 @@ protected:
     ShaderProgram m_shader;
 };
 
+class PuppetShader : public Shader {
+public:
+
+    static PuppetShader* getInstance();
+
+    GLint P;
+    GLint MV;
+    GLint normMatrixAttrib;
+
+    GLint posAttrib;
+    GLint normAttrib;
+
+    GLint lightPosAttrib;
+    GLint lightRgbAttrib;
+    GLint ambientAttrib;
+
+    GLint kdAttrib;
+    GLint ksAttrib;
+    GLint shineAttrib;
+
+private:
+    PuppetShader( std::string vert_path, std::string frag_path );
+};
+
 class CubeShader : public Shader {
 public:
+
+    static CubeShader* getInstance();
+
     GLint P;
     GLint V;
     GLint texture;
@@ -31,14 +58,6 @@ public:
     GLint posAttrib;
     GLint texAttrib;
 
-    CubeShader( std::string vert_path, std::string frag_path )
-        : Shader( vert_path, frag_path ) {
-
-        m_shader.enable();
-        P = m_shader.getUniformLocation("P");
-        V = m_shader.getUniformLocation("V");
-        posAttrib = m_shader.getAttribLocation("pos");
-        texAttrib = m_shader.getUniformLocation("tex");
-        m_shader.disable();
-    }
+private:
+    CubeShader( std::string vert_path, std::string frag_path );
 };

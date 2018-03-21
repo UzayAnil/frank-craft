@@ -44,7 +44,6 @@ protected:
 
     //-- One time initialization methods:
     void processLuaSceneFile(const std::string & filename);
-    void createShaderProgram();
     void enableVertexShaderInputSlots();
     void uploadVertexDataToVbos(const MeshConsolidator & meshConsolidator);
     void mapVboDataToVertexShaderInputLocations();
@@ -67,9 +66,10 @@ protected:
     GLuint m_vao_puppet_meshData;
     GLuint m_vbo_puppet_vertexPositions;
     GLuint m_vbo_puppet_vertexNormals;
-    GLint m_puppet_positionAttribLocation;
-    GLint m_puppet_normalAttribLocation;
-    ShaderProgram m_puppet_shader;
+    //GLint m_puppet_positionAttribLocation;
+    //GLint m_puppet_normalAttribLocation;
+    //ShaderProgram m_puppet_shader;
+    PuppetShader* shader;
 
     // BatchInfoMap is an associative container that maps a unique MeshId to a BatchInfo
     // object. Each BatchInfo object contains an index offset and the number of indices

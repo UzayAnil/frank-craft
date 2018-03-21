@@ -1,4 +1,3 @@
-#include "cs488-framework/CS488Window.hpp"
 #include "Cube.hpp"
 #include "Terrain.hpp"
 #include <glm/gtc/type_ptr.hpp>
@@ -10,24 +9,23 @@ using namespace std;
 using namespace glm;
 
 void Chunk::genTerrain() {
-    //set(0, 0, 0, BlockType::Grass);
-    //set(0, 0, 2, BlockType::Grass);
-    //set(2, 0, 2, BlockType::Grass);
-    //set(2, 4, 2, BlockType::Grass);
-    for ( int x = 0; x < SX; x++ ) {
-        for( int z = 0; z < SZ; z++ ) {
-            double noise = octiveNoise( float(x)/SX, float(z)/SZ, 5, 3 );
-            int h = (int)clamp( noise*double(SY), 1.0, double(SY) );
+    set(0, 0, 2, BlockType::Grass);
+    set(2, 0, 2, BlockType::Grass);
+    set(2, 4, 2, BlockType::Grass);
+    //for ( int x = 0; x < SX; x++ ) {
+        //for( int z = 0; z < SZ; z++ ) {
+            //double noise = octiveNoise( float(x)/SX, float(z)/SZ, 5, 3 );
+            //int h = (int)clamp( noise*double(SY), 1.0, double(SY) );
 
-            set( x, h, z, BlockType::Grass );
-            //for( int z = 0; z < h; z++ ) {
-                //set( x, y, z, BlockType::Grass );
-            //}
-        }
-    }
+            //set( x, h, z, BlockType::Grass );
+            ////for( int z = 0; z < h; z++ ) {
+                ////set( x, y, z, BlockType::Grass );
+            ////}
+        //}
+    //}
 }
 
-void Chunk::init( std::string vert_path, std::string frag_path ) {
+void Chunk::init() {
 
     // general vao, vbo
     {
@@ -40,7 +38,7 @@ void Chunk::init( std::string vert_path, std::string frag_path ) {
         glBindVertexArray( 0 );
         glBindBuffer( GL_ARRAY_BUFFER, 0 );
 
-        shader = new CubeShader( vert_path, frag_path );
+        shader = CubeShader::getInstance();
     }
     CHECK_GL_ERRORS;
 
