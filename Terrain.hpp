@@ -1,5 +1,7 @@
 #pragma once
+
 #include <glm/gtc/noise.hpp>
+#include "Util.hpp"
 
 double octiveNoise( double x, double y, int layers=5, double persist=2 );
 
@@ -55,7 +57,6 @@ public:
                                      grad(p[BB+1], x-1, y-1, z-1 ))));
    }
     static double fade(double t) { return t * t * t * (t * (t * 6 - 15) + 10); }
-    static double lerp(double t, double a, double b) { return a + t * (b - a); }
     static double grad(int hash, double x, double y, double z) {
         int h = hash & 15;                      // CONVERT LO 4 BITS OF HASH CODE
         double u = h<8 ? x : y,                 // INTO 12 GRADIENT DIRECTIONS.

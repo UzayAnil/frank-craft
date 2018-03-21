@@ -6,7 +6,7 @@
 
 #include "Cube.hpp"
 #include "Util.hpp"
-#include "Puppet.hpp"
+#include "Player.hpp"
 
 #include <glm/glm.hpp>
 
@@ -43,8 +43,13 @@ protected:
     glm::mat4 m_perpsective;
     glm::mat4 m_view;
 
+    double last_frame_time;
+    double delta_time;
+
     LightSource m_light;
     const std::string &m_luaSceneFile;
-    Puppet puppet;
-    Chunk chunk;
+    Player player;
+    Chunk terrain;
+
+    Controls ctrls;
 };

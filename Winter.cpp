@@ -28,18 +28,15 @@ void Winter::init() {
     // Set the background colour.
     glClearColor(0.35, 0.35, 0.35, 1.0);
 
-    {
-        puppet.init( m_luaSceneFile );
-    }
-
-    {
-        chunk.init();
-        chunk.genTerrain();
-    }
+    player.init( m_luaSceneFile );
+    terrain.init();
+    terrain.genTerrain();
 
     initPerspectiveMatrix();
     initViewMatrix();
     initLightSources();
+
+    last_frame_time = getTime();
 }
 
 
@@ -66,29 +63,31 @@ void Winter::initLightSources() {
     m_light.rgbIntensity = vec3(0.8f); // White light
 }
 
-//----------------------------------------------------------------------------------------
 void Winter::uploadCommonSceneUniforms() {
     vec3 ambientIntensity(0.5f);
-    puppet.updateUniform( m_perpsective, m_view, m_light, ambientIntensity );
-    chunk.updateUniform( m_perpsective, m_view );
+    player.updateUniform( m_perpsective, m_view, m_light, ambientIntensity );
+    terrain.updateUniform( m_perpsective, m_view );
 }
 
-//----------------------------------------------------------------------------------------
 /*
  * Called once per frame, before guiLogic().
  */
 void Winter::appLogic() {
     // Place per frame, application logic here ...
 
+    double curr_frame_time = getTime();
+    delta_time = (curr_frame_time - last_frame_time)/1000;
+    last_frame_time = curr_frame_time;
+
+    player.move( ctrls, delta_time, terrain );
+
     uploadCommonSceneUniforms();
 }
 
-//----------------------------------------------------------------------------------------
 /*
  * Called once per frame, after appLogic(), but before the draw() method.
  */
-void Winter::guiLogic()
-{
+void Winter::guiLogic() {
     if( !show_gui ) {
         return;
     }
@@ -118,8 +117,8 @@ void Winter::draw() {
     glEnable( GL_DEPTH_TEST );
     glEnable(GL_CULL_FACE);
 
-    chunk.render();
-    puppet.render();
+    terrain.render();
+    player.render();
 }
 
 /*
@@ -168,6 +167,54 @@ bool Winter::keyInputEvent ( int key, int action, int mods) {
     bool eventHandled(false);
 
     if( action == GLFW_PRESS ) {
+        if( key == GLFW_KEY_W ) {
+            ctrls.W = true;
+            eventHandled = true;
+        }
+        if( key == GLFW_KEY_A ) {
+            ctrls.A = true;
+            eventHandled = true;
+        }
+        if( key == GLFW_KEY_S ) {
+            ctrls.S = true;
+            eventHandled = true;
+        }
+        if( key == GLFW_KEY_D ) {
+            ctrls.D = true;
+            eventHandled = true;
+        }
+        if( key == GLFW_KEY_SPACE ) {
+            ctrls.Space = true;
+            eventHandled = true;
+        }
+
+        if ( key == GLFW_KEY_Q ) {
+            glfwSetWindowShouldClose(m_window, GL_TRUE);
+            eventHandled = true;
+        }
+    }
+
+    if( action == GLFW_RELEASE ) {
+        if( key == GLFW_KEY_W ) {
+            ctrls.W = false;
+            eventHandled = true;
+        }
+        if( key == GLFW_KEY_A ) {
+            ctrls.A = false;
+            eventHandled = true;
+        }
+        if( key == GLFW_KEY_S ) {
+            ctrls.S = false;
+            eventHandled = true;
+        }
+        if( key == GLFW_KEY_D ) {
+            ctrls.D = false;
+            eventHandled = true;
+        }
+        if( key == GLFW_KEY_SPACE ) {
+            ctrls.Space = false;
+            eventHandled = true;
+        }
     }
 
     return eventHandled;

@@ -9,20 +9,22 @@ using namespace std;
 using namespace glm;
 
 void Chunk::genTerrain() {
-    set(0, 0, 2, BlockType::Grass);
-    set(2, 0, 2, BlockType::Grass);
-    set(2, 4, 2, BlockType::Grass);
-    //for ( int x = 0; x < SX; x++ ) {
-        //for( int z = 0; z < SZ; z++ ) {
-            //double noise = octiveNoise( float(x)/SX, float(z)/SZ, 5, 3 );
-            //int h = (int)clamp( noise*double(SY), 1.0, double(SY) );
+    //set(0, 0, 2, BlockType::Grass);
+    //set(2, 0, 2, BlockType::Grass);
+    //set(2, 4, 2, BlockType::Grass);
+    for ( int x = 0; x < SX; x++ ) {
+        for( int z = 0; z < SZ; z++ ) {
+            double noise = octiveNoise( float(x)/SX, float(z)/SZ, 5, 3 );
+            int h = (int)clamp( noise*double(SY), 1.0, double(SY) );
 
-            //set( x, h, z, BlockType::Grass );
-            ////for( int z = 0; z < h; z++ ) {
-                ////set( x, y, z, BlockType::Grass );
-            ////}
-        //}
-    //}
+            h = 0;
+            set( x, h, z, BlockType::Grass );
+
+            //for( int y = 0; y < h; y++ ) {
+                //set( x, y, z, BlockType::Grass );
+            //}
+        }
+    }
 }
 
 void Chunk::init() {
