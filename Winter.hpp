@@ -3,23 +3,15 @@
 #include "cs488-framework/CS488Window.hpp"
 #include "cs488-framework/OpenGLImport.hpp"
 #include "cs488-framework/ShaderProgram.hpp"
-#include "cs488-framework/MeshConsolidator.hpp"
 
-#include "SceneNode.hpp"
-#include "JointNode.hpp"
-#include "GeometryNode.hpp"
 #include "Cube.hpp"
+#include "Util.hpp"
+#include "Puppet.hpp"
 
 #include <glm/glm.hpp>
-#include <memory>
 
 #include <vector>
 #include <set>
-
-struct LightSource {
-    glm::vec3 position;
-    glm::vec3 rgbIntensity;
-};
 
 
 class Winter : public CS488Window {
@@ -42,42 +34,17 @@ protected:
     virtual bool windowResizeEvent(int width, int height) override;
     virtual bool keyInputEvent(int key, int action, int mods) override;
 
-    //-- One time initialization methods:
-    void processLuaSceneFile(const std::string & filename);
-    void enableVertexShaderInputSlots();
-    void uploadVertexDataToVbos(const MeshConsolidator & meshConsolidator);
-    void mapVboDataToVertexShaderInputLocations();
+    void initPerspectiveMatrix();
     void initViewMatrix();
     void initLightSources();
 
-    void initPerspectiveMatrix();
     void uploadCommonSceneUniforms();
-    void renderSceneGraph(const SceneNode &node);
-    void renderSceneGraph(const SceneNode *node, glm::mat4 M);
-    void renderJointGraph(const SceneNode *node, glm::mat4 M);
-    void renderGeometryGraph(const SceneNode *node, glm::mat4 M );
 
     glm::mat4 m_perpsective;
     glm::mat4 m_view;
 
     LightSource m_light;
-
-    //-- GL resources for mesh geometry data:
-    GLuint m_vao_puppet_meshData;
-    GLuint m_vbo_puppet_vertexPositions;
-    GLuint m_vbo_puppet_vertexNormals;
-    //GLint m_puppet_positionAttribLocation;
-    //GLint m_puppet_normalAttribLocation;
-    //ShaderProgram m_puppet_shader;
-    PuppetShader* shader;
-
-    // BatchInfoMap is an associative container that maps a unique MeshId to a BatchInfo
-    // object. Each BatchInfo object contains an index offset and the number of indices
-    // required to render the mesh with identifier MeshId.
-    BatchInfoMap m_batchInfoMap;
-    std::string m_luaSceneFile;
-    std::shared_ptr<SceneNode> m_puppet;
-
-    // Chunks
+    const std::string &m_luaSceneFile;
+    Puppet puppet;
     Chunk chunk;
 };
