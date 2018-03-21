@@ -1,5 +1,6 @@
-#include "Cube.hpp"
 #include "cs488-framework/CS488Window.hpp"
+#include "Cube.hpp"
+#include "Terrain.hpp"
 #include <glm/gtc/type_ptr.hpp>
 #include <lodepng/lodepng.h>
 #include <vector>
@@ -7,6 +8,24 @@
 
 using namespace std;
 using namespace glm;
+
+void Chunk::genTerrain() {
+    //set(0, 0, 0, BlockType::Grass);
+    //set(0, 0, 2, BlockType::Grass);
+    //set(2, 0, 2, BlockType::Grass);
+    //set(2, 4, 2, BlockType::Grass);
+    for ( int x = 0; x < SX; x++ ) {
+        for( int z = 0; z < SZ; z++ ) {
+            double noise = octiveNoise( float(x)/SX, float(z)/SZ, 5, 3 );
+            int h = (int)clamp( noise*double(SY), 1.0, double(SY) );
+
+            set( x, h, z, BlockType::Grass );
+            //for( int z = 0; z < h; z++ ) {
+                //set( x, y, z, BlockType::Grass );
+            //}
+        }
+    }
+}
 
 void Chunk::init( std::string vert_path, std::string frag_path ) {
 
@@ -54,19 +73,20 @@ void Chunk::init( std::string vert_path, std::string frag_path ) {
 
 void Chunk::update() {
     // 6 faces, each needs 2 triangles( 3 vertices )
-    byte4 vertex[CX * CY * CZ * 6 * 6];
+    //byte4 vertex[SX * SY * SZ * 6 * 6];
     int i = 0;
     bool is_visible = false;;
 
     // View from negative x
-    for(int x = CX - 1; x >= 0; x--) {
-        for(int y = 0; y < CY; y++) {
-            for(int z = 0; z < CZ; z++) {
+    for(int x = SX - 1; x >= 0; x--) {
+        for(int y = 0; y < SY; y++) {
+            for(int z = 0; z < SZ; z++) {
 
-                if(isblocked(x, y, z, x - 1, y, z)) {
-                    is_visible = false;
-                    continue;
-                }
+                if( !grid[x][y][z] ) continue;
+                //if(isblocked(x, y, z, x - 1, y, z)) {
+                    //is_visible = false;
+                    //continue;
+                //}
 
 
                 uint8_t top;
@@ -99,13 +119,15 @@ void Chunk::update() {
 
     // View from positive x
 
-    for(int x = 0; x < CX; x++) {
-        for(int y = 0; y < CY; y++) {
-            for(int z = 0; z < CZ; z++) {
-                if(isblocked(x, y, z, x + 1, y, z)) {
-                    is_visible = false;
-                    continue;
-                }
+    for(int x = 0; x < SX; x++) {
+        for(int y = 0; y < SY; y++) {
+            for(int z = 0; z < SZ; z++) {
+
+                if( !grid[x][y][z] ) continue;
+                //if(isblocked(x, y, z, x + 1, y, z)) {
+                    //is_visible = false;
+                    //continue;
+                //}
 
                 uint8_t top;
                 uint8_t bottom;
@@ -135,13 +157,15 @@ void Chunk::update() {
 
     // View from negative y
 
-    for(int x = 0; x < CX; x++) {
-        for(int y = CY - 1; y >= 0; y--) {
-            for(int z = 0; z < CZ; z++) {
-                if(isblocked(x, y, z, x, y - 1, z)) {
-                    is_visible = false;
-                    continue;
-                }
+    for(int x = 0; x < SX; x++) {
+        for(int y = SY - 1; y >= 0; y--) {
+            for(int z = 0; z < SZ; z++) {
+
+                if( !grid[x][y][z] ) continue;
+                //if(isblocked(x, y, z, x, y - 1, z)) {
+                    //is_visible = false;
+                    //continue;
+                //}
 
                 uint8_t top;
                 uint8_t bottom;
@@ -171,13 +195,15 @@ void Chunk::update() {
 
     // View from positive y
 
-    for(int x = 0; x < CX; x++) {
-        for(int y = 0; y < CY; y++) {
-            for(int z = 0; z < CZ; z++) {
-                if(isblocked(x, y, z, x, y + 1, z)) {
-                    is_visible = false;
-                    continue;
-                }
+    for(int x = 0; x < SX; x++) {
+        for(int y = 0; y < SY; y++) {
+            for(int z = 0; z < SZ; z++) {
+
+                if( !grid[x][y][z] ) continue;
+                //if(isblocked(x, y, z, x, y + 1, z)) {
+                    //is_visible = false;
+                    //continue;
+                //}
 
                 uint8_t top;
                 uint8_t bottom;
@@ -207,13 +233,15 @@ void Chunk::update() {
 
     // View from negative z
 
-    for(int x = 0; x < CX; x++) {
-        for(int z = CZ - 1; z >= 0; z--) {
-            for(int y = 0; y < CY; y++) {
-                if(isblocked(x, y, z, x, y, z - 1)) {
-                    is_visible = false;
-                    continue;
-                }
+    for(int x = 0; x < SX; x++) {
+        for(int z = SZ - 1; z >= 0; z--) {
+            for(int y = 0; y < SY; y++) {
+
+                if( !grid[x][y][z] ) continue;
+                //if(isblocked(x, y, z, x, y, z - 1)) {
+                    //is_visible = false;
+                    //continue;
+                //}
 
                 uint8_t top;
                 uint8_t bottom;
@@ -243,13 +271,15 @@ void Chunk::update() {
 
     // View from positive z
 
-    for(int x = 0; x < CX; x++) {
-        for(int z = 0; z < CZ; z++) {
-            for(int y = 0; y < CY; y++) {
-                if(isblocked(x, y, z, x, y, z + 1)) {
-                    is_visible = false;
-                    continue;
-                }
+    for(int x = 0; x < SX; x++) {
+        for(int z = 0; z < SZ; z++) {
+            for(int y = 0; y < SY; y++) {
+
+                if( !grid[x][y][z] ) continue;
+                //if(isblocked(x, y, z, x, y, z + 1)) {
+                    //is_visible = false;
+                    //continue;
+                //}
 
                 uint8_t top;
                 uint8_t bottom;
@@ -277,7 +307,7 @@ void Chunk::update() {
         }
     }
 
-    //changed = false;
+    changed = false;
     num_filled = i;
 
     //// If this chunk is empty, no need to allocate a chunk slot.
@@ -321,9 +351,11 @@ void Chunk::update() {
     //}
     //cout<<"done"<<endl;
 
+
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, i * sizeof *vertex, vertex, GL_STATIC_DRAW);
     glBindBuffer( GL_ARRAY_BUFFER, 0 );
+
     CHECK_GL_ERRORS;
 }
 
@@ -335,8 +367,8 @@ void Chunk::render() {
 
     //lastused = now;
 
-    //if(!num_filled)
-        //return;
+    if(!num_filled)
+        return;
 
     shader->enable();
 

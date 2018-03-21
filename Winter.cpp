@@ -86,13 +86,7 @@ void Winter::init()
         chunk.init(
             getAssetFilePath("CubeVertexShader.vs"),
             getAssetFilePath("CubeFragmentShader.fs") );
-        chunk.set(0, 0, 0, BlockType::Grass);
-
-        chunk.set(0, 0, 2, BlockType::Grass);
-
-        chunk.set(2, 0, 2, BlockType::Grass);
-
-        chunk.set(2, 4, 2, BlockType::Grass);
+        chunk.genTerrain();
     }
 
     initPerspectiveMatrix();
@@ -219,7 +213,7 @@ void Winter::mapVboDataToVertexShaderInputLocations()
 void Winter::initPerspectiveMatrix() {
     float aspect = ((float)m_windowWidth) / m_windowHeight;
     //m_perpsective = glm::perspective(degreesToRadians(60.0f), aspect, 0.1f, 100.0f);
-    m_perpsective = glm::perspective(degreesToRadians(45.0f), aspect, 1.0f, 1000.0f);
+    m_perpsective = glm::perspective(degreesToRadians(60.0f), aspect, 1.0f, 1000.0f);
 }
 
 
@@ -231,6 +225,8 @@ void Winter::initViewMatrix() {
         glm::vec3( 0.0f, 2.0f, -float(4)*2.0*M_SQRT1_2 ),
         glm::vec3( 0.0f, 2.0f, 0.0f ),
         glm::vec3( 0.0f, 1.0f, 0.0f ) );
+    m_view = m_view * rotate( mat4(), -float(degreesToRadians(110)), vec3( 1, 0, 0 ) );
+    m_view = m_view * translate( mat4(), vec3(-20, -80, 0) );
 }
 
 //----------------------------------------------------------------------------------------

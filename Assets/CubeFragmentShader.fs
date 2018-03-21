@@ -8,7 +8,7 @@ void main() {
     if ( texcoord.w < 0 ) {
         fragColour = texture( tex, vec2(
             (fract(texcoord.x) + texcoord.w)/16.0,
-            fract(texcoord.z)/16.0
+            (1-fract(texcoord.z))/16.0
             ));
     } else {
         fragColour = texture( tex, vec2(
