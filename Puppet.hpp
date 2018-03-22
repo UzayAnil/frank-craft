@@ -16,18 +16,20 @@
 
 class Puppet {
 public:
-    Puppet() {}
+    Puppet() : joint_t(0.5) {}
     void init( std::string file );
     void render();
     void updateShaderUniforms( const GeometryNode & node, const glm::mat4 & viewMatrix );
     void updateUniform( const glm::mat4 &P, const glm::mat4 &V,  const LightSource &m_light, const glm::vec3 &ambientIntensity );
+    void animate( float delta );
 
 private:
 
     //-- One time initialization methods:
     void uploadVertexDataToVbos(const MeshConsolidator & meshConsolidator);
     void mapVboDataToVertexShaderInputLocations();
-    void processLuaSceneFile(const std::string & filename);
+    void loadPuppet(const std::string & filename);
+    void loadJoints( SceneNode* node );
 
 
     // render methods
@@ -45,6 +47,11 @@ private:
     // required to render the mesh with identifier MeshId.
     BatchInfoMap m_batchInfoMap;
     std::shared_ptr<SceneNode> m_puppet;
+
+    // rotation control joints
+    JointNode *left_hip, *right_hip;
+    JointNode *left_shoulder, *right_shoulder;
+    float joint_t;
 
     glm::mat4 V;
     PuppetShader* shader;

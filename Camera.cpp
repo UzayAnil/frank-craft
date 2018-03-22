@@ -12,18 +12,18 @@ PlayerCamera::PlayerCamera( Player &player ) :
     yaw( DEFAULT_YAW ),
     pitch( DEFAULT_PITCH ) {}
 
-void PlayerCamera::updateZoom( float delta ) {
-    dis_from_player -= delta * ZOOM_SPEED;
+void PlayerCamera::updateZoom( float delta_time ) {
+    dis_from_player -= delta_time * ZOOM_SPEED;
     dis_from_player = clamp( dis_from_player, MIN_ZOOM, MAX_ZOOM );
 }
 
-void PlayerCamera::updatePitch( float delta ) {
-    pitch += delta * PITCH_SPEED;
+void PlayerCamera::updatePitch( float delta_time ) {
+    pitch += delta_time * PITCH_SPEED;
     pitch = clamp( pitch, MIN_PITCH, MAX_PITCH );
 }
 
-void PlayerCamera::updateYaw( float delta ) {
-    yaw -= delta * YAW_SPEED;
+void PlayerCamera::updateYaw( float delta_time ) {
+    yaw -= delta_time * YAW_SPEED;
     yaw = fmod( yaw, 360 );
 }
 

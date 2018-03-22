@@ -32,26 +32,24 @@ CubeShader::CubeShader( string vert_path, string frag_path )
 PuppetShader::PuppetShader( string vert_path, string frag_path )
     : Shader( vert_path, frag_path ) {
 
-    cout<<"hello"<<endl;
     m_shader.enable();
-    cout<<"goodbye"<<endl;
 
-    P = m_shader.getUniformLocation("Perspective");
-    MV = m_shader.getUniformLocation("ModelView");
-    normMatrixAttrib = m_shader.getUniformLocation("NormalMatrix");
+    {
+        P = m_shader.getUniformLocation("Perspective");
+        MV = m_shader.getUniformLocation("ModelView");
+        normMatrixAttrib = m_shader.getUniformLocation("NormalMatrix");
 
-    posAttrib = m_shader.getAttribLocation("position");
-    normAttrib = m_shader.getAttribLocation("normal");
+        posAttrib = m_shader.getAttribLocation("position");
+        normAttrib = m_shader.getAttribLocation("normal");
 
-    lightPosAttrib = m_shader.getUniformLocation("light.position");
-    lightRgbAttrib = m_shader.getUniformLocation("light.rgbIntensity");
-    ambientAttrib = m_shader.getUniformLocation("ambientIntensity");
+        lightPosAttrib = m_shader.getUniformLocation("light.position");
+        lightRgbAttrib = m_shader.getUniformLocation("light.rgbIntensity");
+        ambientAttrib = m_shader.getUniformLocation("ambientIntensity");
 
-    kdAttrib = m_shader.getUniformLocation("material.kd");
-    ksAttrib = m_shader.getUniformLocation("material.ks");
-    shineAttrib = m_shader.getUniformLocation("material.shininess");
-
-
+        kdAttrib = m_shader.getUniformLocation("material.kd");
+        ksAttrib = m_shader.getUniformLocation("material.ks");
+        shineAttrib = m_shader.getUniformLocation("material.shininess");
+    }
 
     m_shader.disable();
 }

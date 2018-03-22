@@ -6,9 +6,9 @@ class PlayerCamera {
 public:
     PlayerCamera( Player &player );
 
-    void updateZoom( float delta );
-    void updatePitch( float delta );
-    void updateYaw( float delta );
+    void updateZoom( float delta_time );
+    void updatePitch( float delta_time );
+    void updateYaw( float delta_time );
 
     float getHorDis();
     float getVertDis();

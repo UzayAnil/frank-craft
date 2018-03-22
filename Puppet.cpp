@@ -2,6 +2,7 @@
 #include "cs488-framework/CS488Window.hpp"
 #include "cs488-framework/OpenGLImport.hpp"
 #include "scene_lua.hpp"
+#include "Util.hpp"
 
 using namespace glm;
 using namespace std;
@@ -20,7 +21,7 @@ void Puppet::init( std::string file ) {
     }
 
     {
-        processLuaSceneFile(file);
+        loadPuppet(file);
 
         // Load and decode all .obj files at once here.  You may add additional .obj files to
         // this list in order to support rendering additional mesh types.  All vertex
@@ -42,7 +43,7 @@ void Puppet::init( std::string file ) {
     }
 }
 
-void Puppet::processLuaSceneFile(const std::string & filename) {
+void Puppet::loadPuppet(const std::string & filename) {
     // This version of the code treats the Lua file as an Asset,
     // so that you'd launch the program with just the filename
     // of a puppet in the Assets/ directory.
@@ -55,7 +56,30 @@ void Puppet::processLuaSceneFile(const std::string & filename) {
     if (!m_puppet) {
         std::cerr << "Could not open " << filename << std::endl;
     }
+
+    loadJoints( m_puppet.get() );
 }
+
+void Puppet::loadJoints( SceneNode* node ) {
+    if ( node->m_name == "left_shoulder_joint" ) {
+        left_shoulder = (JointNode*)node;
+
+    } else if ( node->m_name == "right_shoulder_joint" ) {
+        right_shoulder = (JointNode*)node;
+
+    } else if ( node->m_name == "left_hip_joint" ) {
+        left_hip = (JointNode*)node;
+
+    } else if ( node->m_name == "right_hip_joint" ) {
+        right_hip = (JointNode*)node;
+    }
+
+    for ( auto child : node->children ) {
+        loadJoints( child );
+    }
+
+}
+
 void Puppet::updateUniform( const glm::mat4 &P, const glm::mat4 &V, const LightSource &light, const vec3 &ambientIntensity ) {
     shader->enable();
     //-- Set Perpsective matrix uniform for the scene:
@@ -244,5 +268,36 @@ void Puppet::updateShaderUniforms(
 
     }
     shader->disable();
+
+}
+
+void Puppet::animate( float delta ) {
+    if ( fabs(delta) < ggEps ) return;
+    joint_t += delta * 1.5;
+    while ( joint_t < 0 ) joint_t += 2;
+    while ( joint_t > 2 ) joint_t -= 2;
+
+    double t = joint_t < 1 ? joint_t : 2-joint_t;
+    {
+        float new_angle = lerp( t, left_hip->m_joint_x.min, left_hip->m_joint_x.max);
+        float delta_angle = new_angle - left_hip->m_x_angle;
+        left_hip->rotate( 'x', delta_angle );
+    }
+    {
+        float new_angle = lerp( 1-t, right_hip->m_joint_x.min, right_hip->m_joint_x.max);
+        float delta_angle = new_angle - right_hip->m_x_angle;
+        right_hip->rotate( 'x', delta_angle );
+    }
+    {
+        float new_angle = lerp( 1-t, left_shoulder->m_joint_x.min, left_shoulder->m_joint_x.max);
+        float delta_angle = new_angle - left_shoulder->m_x_angle;       left_shoulder->rotate( 'x', delta_angle );
+        left_shoulder->rotate( 'x', delta_angle );
+    }
+    {
+        float new_angle = lerp( t, right_shoulder->m_joint_x.min, right_shoulder->m_joint_x.max);
+        float delta_angle = new_angle - right_shoulder->m_x_angle;       right_shoulder->rotate( 'x', delta_angle );
+        right_shoulder->rotate( 'x', delta_angle );
+    }
+
 
 }

@@ -25,8 +25,8 @@ public:
 private:
     static constexpr float MOVE_SPEED = 20;
     static constexpr float TURN_SPEED = 150;
-    static constexpr float GRAVITY = -1.5;
-    static constexpr float JUMP_POWER = 0.25;
+    static constexpr float GRAVITY = -2;
+    static constexpr float JUMP_POWER = 0.5;
 
     float move_speed;
     float turn_speed;

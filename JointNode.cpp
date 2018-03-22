@@ -67,6 +67,7 @@ void JointNode::rotate( char axis, float angle ) {
             } else if ( (angle + m_y_angle) < m_joint_y.min ) {
                 angle = m_joint_y.min - m_y_angle;
             }
+            m_y_angle += angle;
 
             break;
 

@@ -17,9 +17,9 @@ enum BlockType {
 class Chunk {
 public:
 
-    static const int SX = 16;
+    static const int SX = 64;
     static const int SY = 16;
-    static const int SZ = 16;
+    static const int SZ = 64;
 
     Chunk() : vao(0), vbo(0) {
         std::memset(grid, 0, sizeof(grid));

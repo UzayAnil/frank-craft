@@ -1,6 +1,10 @@
 #include "Util.hpp"
 #include <chrono>
+#include <iostream>
+#include <glm/glm.hpp>
 using namespace std::chrono;
+using namespace std;
+using namespace glm;
 
 double lerp(double t, double a, double b) { return a + t * (b - a); }
 

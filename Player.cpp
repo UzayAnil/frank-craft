@@ -33,6 +33,10 @@ void Player::move( Controls &ctrls, float delta_time, Chunk &terrain ) {
     pos += d_pos;
     M = translate( M, dis*vec3(0,0,1) );
 
+    if ( fabs(move_speed) > ggEps ) {
+        puppet.animate( move_speed > 0 ? delta_time : -delta_time );
+    }
+
     // fall
     up_speed += delta_time * GRAVITY;
     float new_y = pos.y + up_speed;

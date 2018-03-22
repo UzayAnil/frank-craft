@@ -76,7 +76,7 @@ right_eye:set_material(blue)
 -- shoulder + arms ----------------------------------------------------------------
 function get_arm( name )
 
-    shoulder_joint = gr.joint( name .. '_shoulder_joint', {-90, 0, 0}, {0, 0, 0} )
+    shoulder_joint = gr.joint( name .. '_shoulder_joint', {-45, 0, 45}, {0, 0, 0} )
 
     upper_arm_geo = gr.mesh( 'sphere', name .. '_upper_arm_geo' )
     shoulder_joint:add_child( upper_arm_geo )
@@ -131,7 +131,7 @@ left_shoulder_geo:scale( 0.2, 0.2, 0.2 )
 left_shoulder_geo:set_material( blue )
 left_shoulder_geo:translate( -1, 0.6, 0 )
 
-left_arm = get_arm( 'left ' )
+left_arm = get_arm( 'left' )
 left_shoulder_geo:add_child( left_arm )
 
 right_shoulder_geo = gr.mesh( 'sphere', 'right_shoulder_geo' )
@@ -141,7 +141,7 @@ right_shoulder_geo:scale( 0.2, 0.2, 0.2 )
 right_shoulder_geo:set_material( blue )
 right_shoulder_geo:translate( 1, 0.6, 0 )
 
-right_arm = get_arm( 'right ' )
+right_arm = get_arm( 'right' )
 right_shoulder_geo:add_child( right_arm )
 
 
@@ -158,7 +158,7 @@ hip_geo:translate( 0, -0.5, 0 )
 
 
 function get_leg( name )
-    hip_joint = gr.joint( name .. '_hip_joint', {-90, 0, 20}, {0, 0, 0} )
+    hip_joint = gr.joint( name .. '_hip_joint', {-45, 0, 45}, {0, 0, 0} )
 
     upper_leg_geo = gr.mesh( 'sphere', name ..'_upper_leg_geo' )
     hip_joint:add_child( upper_leg_geo )

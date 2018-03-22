@@ -2,6 +2,8 @@
 
 #include <glm/glm.hpp>
 
+#define ggEps 0.0001
+
 struct LightSource {
     glm::vec3 position;
     glm::vec3 rgbIntensity;
