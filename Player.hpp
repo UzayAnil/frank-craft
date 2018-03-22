@@ -17,6 +17,11 @@ public:
 
     //glm::mat4 getViewMatrix();
 
+public:
+    float angle;
+    glm::vec3 pos;
+    glm::vec3 dir;
+
 private:
     static constexpr float MOVE_SPEED = 20;
     static constexpr float TURN_SPEED = 150;
@@ -27,9 +32,6 @@ private:
     float turn_speed;
     float up_speed;
     int jump_cnts;
-    glm::vec3 pos;
-    glm::vec3 dir;
     glm::mat4 M;
-
     Puppet puppet;
 };

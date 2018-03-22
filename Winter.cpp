@@ -13,14 +13,9 @@ using namespace std;
 using namespace glm;
 
 static bool show_gui = true;
-const size_t CIRCLE_PTS = 48;
-static int interaction_radio = 0;
-
-
-
 
 // Constructor
-Winter::Winter(const std::string & luaSceneFile) : m_luaSceneFile(luaSceneFile){ }
+Winter::Winter(const std::string & luaSceneFile) : m_luaSceneFile(luaSceneFile), camera(player){ }
 // Destructor
 Winter::~Winter() { }
 
@@ -81,6 +76,7 @@ void Winter::appLogic() {
 
     player.move( ctrls, delta_time, terrain );
 
+    m_view = camera.getViewMatrix();
     uploadCommonSceneUniforms();
 }
 
@@ -117,6 +113,7 @@ void Winter::draw() {
     glEnable( GL_DEPTH_TEST );
     glEnable(GL_CULL_FACE);
 
+    camera.getViewMatrix();
     terrain.render();
     player.render();
 }
@@ -137,6 +134,17 @@ bool Winter::mouseMoveEvent ( double xPos, double yPos) {
     bool eventHandled(false);
 
     if ( !ImGui::IsMouseHoveringAnyWindow() ) {
+
+        float dx = xPos - ctrls.xPos;
+        float dy = yPos - ctrls.yPos;
+
+        if ( ctrls.mouse_left_down ) {
+            camera.updateYaw( dx );
+            camera.updatePitch( dy );
+        }
+
+        ctrls.xPos = xPos;
+        ctrls.yPos = yPos;
     }
 
     return eventHandled;
@@ -146,14 +154,27 @@ bool Winter::mouseButtonInputEvent ( int button, int actions, int mods) {
     bool eventHandled(false);
 
     if ( !ImGui::IsMouseHoveringAnyWindow() ) {
+        if ( actions == GLFW_PRESS ) {
+            if ( button == GLFW_MOUSE_BUTTON_LEFT ) {
+                ctrls.mouse_left_down = true;
+                eventHandled = true;
+            }
+        }
+
+        if ( actions == GLFW_RELEASE ) {
+            if ( button == GLFW_MOUSE_BUTTON_LEFT ) {
+                ctrls.mouse_left_down = false;
+                eventHandled = true;
+            }
+        }
     }
 
     return eventHandled;
 }
 
 bool Winter::mouseScrollEvent ( double xOffSet, double yOffSet) {
-    bool eventHandled(false);
-
+    bool eventHandled(true);
+    camera.updateZoom(yOffSet);
     return eventHandled;
 }
 

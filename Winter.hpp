@@ -4,6 +4,7 @@
 #include "cs488-framework/OpenGLImport.hpp"
 #include "cs488-framework/ShaderProgram.hpp"
 
+#include "Camera.hpp"
 #include "Cube.hpp"
 #include "Util.hpp"
 #include "Player.hpp"
@@ -50,6 +51,6 @@ protected:
     const std::string &m_luaSceneFile;
     Player player;
     Chunk terrain;
-
+    PlayerCamera camera;
     Controls ctrls;
 };

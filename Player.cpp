@@ -9,7 +9,7 @@ using namespace glm;
 using namespace std;
 
 Player::Player()
-    : move_speed( 0 ), turn_speed( 0 ), up_speed( 0 ), jump_cnts( 3 ),
+    : angle( 0 ), move_speed( 0 ), turn_speed( 0 ), up_speed( 0 ), jump_cnts( 3 ),
     pos(2, 5, 2), dir( 0, 0, 1 ) {
     M = translate( M, pos );
 }
@@ -23,6 +23,7 @@ void Player::move( Controls &ctrls, float delta_time, Chunk &terrain ) {
 
     // turn
     float d_angle = turn_speed * delta_time;
+    angle += d_angle;
     M = rotate( M, degreesToRadians(d_angle), vec3(0,1,0) );
 
     // move
@@ -35,7 +36,6 @@ void Player::move( Controls &ctrls, float delta_time, Chunk &terrain ) {
     // fall
     up_speed += delta_time * GRAVITY;
     float new_y = pos.y + up_speed;
-    cout<<"x: "<<pos.x<<" z: "<<pos.z<<endl;
     if ( new_y < pos.y && terrain.get( floor(pos.x), floor(new_y), floor(pos.z) ) ) {
         new_y = floor(new_y)+1;
         up_speed = 0;
