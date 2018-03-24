@@ -3,11 +3,11 @@
 #include "cs488-framework/MathUtils.hpp"
 
 #include <imgui/imgui.h>
-
 #include <glm/gtx/io.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
 #include <cassert>
+#include <cstdlib>
 
 using namespace std;
 using namespace glm;
@@ -26,6 +26,7 @@ void Winter::init() {
     player.init( m_luaSceneFile );
     terrain.init();
     terrain.genTerrain();
+    particle_system.init();
 
     initPerspectiveMatrix();
     initViewMatrix();
@@ -62,6 +63,7 @@ void Winter::uploadCommonSceneUniforms() {
     vec3 ambientIntensity(0.5f);
     player.updateUniform( m_perpsective, m_view, m_light, ambientIntensity );
     terrain.updateUniform( m_perpsective, m_view );
+    particle_system.updateUniform( m_perpsective, m_view );
 }
 
 /*
@@ -70,12 +72,24 @@ void Winter::uploadCommonSceneUniforms() {
 void Winter::appLogic() {
     // Place per frame, application logic here ...
 
+    // calculate time passed in seconds
     double curr_frame_time = getTime();
     delta_time = (curr_frame_time - last_frame_time)/1000;
     last_frame_time = curr_frame_time;
 
+    // update movements with time
     player.move( ctrls, delta_time, terrain );
+    particle_system.update( delta_time );
 
+
+    for ( int i = 0; i < rand()%5; i++ ) {
+        float vx = (rand()%5+1)* (2*float(rand())/RAND_MAX-1);
+        float vy = (rand()%5+1)* (2*float(rand())/RAND_MAX-1);
+        float vz = (rand()%5+1) * (2*float(rand())/RAND_MAX-1);
+        particle_system.addParticle( player.pos+vec3(0, 5, 0), vec3(vx, vy, vz) );
+    }
+
+    // get new view matrix, upload P, V to all shaders
     m_view = camera.getViewMatrix();
     uploadCommonSceneUniforms();
 }
@@ -116,6 +130,7 @@ void Winter::draw() {
     camera.getViewMatrix();
     terrain.render();
     player.render();
+    particle_system.render();
 }
 
 /*

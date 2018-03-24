@@ -53,4 +53,5 @@ protected:
     Chunk terrain;
     PlayerCamera camera;
     Controls ctrls;
+    ParticleSystem particle_system;
 };

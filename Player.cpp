@@ -38,8 +38,9 @@ void Player::move( Controls &ctrls, float delta_time, Chunk &terrain ) {
     }
 
     // fall
-    up_speed += delta_time * GRAVITY;
+    up_speed -= delta_time * GRAVITY;
     float new_y = pos.y + up_speed;
+    if ( new_y < 0 ) new_y = 0;
     if ( new_y < pos.y && terrain.get( floor(pos.x), floor(new_y), floor(pos.z) ) ) {
         new_y = floor(new_y)+1;
         up_speed = 0;

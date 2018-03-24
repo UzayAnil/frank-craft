@@ -3,6 +3,7 @@
 #include <glm/glm.hpp>
 
 #define ggEps 0.0001
+#define GRAVITY 9.81
 
 struct LightSource {
     glm::vec3 position;

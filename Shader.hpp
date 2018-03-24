@@ -61,3 +61,17 @@ public:
 private:
     CubeShader( std::string vert_path, std::string frag_path );
 };
+
+class ParticleShader : public Shader {
+public:
+
+    static ParticleShader* getInstance();
+
+    GLint P;
+    GLint V;
+    GLint M;
+    GLint posAttrib;
+
+private:
+    ParticleShader( std::string vert_path, std::string frag_path );
+};

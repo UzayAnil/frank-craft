@@ -53,3 +53,21 @@ PuppetShader::PuppetShader( string vert_path, string frag_path )
 
     m_shader.disable();
 }
+
+ParticleShader* ParticleShader::getInstance() {
+    static ParticleShader particle_shader(
+            CS488Window::getAssetFilePath("ParticleVertexShader.vs"),
+            CS488Window::getAssetFilePath("ParticleFragmentShader.fs")
+        );
+    return &particle_shader;
+}
+
+ParticleShader::ParticleShader( string vert_path, string frag_path )
+        : Shader( vert_path, frag_path ) {
+    m_shader.enable();
+    P = m_shader.getUniformLocation("P");
+    V = m_shader.getUniformLocation("V");
+    M = m_shader.getUniformLocation("M");
+    posAttrib = m_shader.getAttribLocation("pos");
+    m_shader.disable();
+}
