@@ -8,6 +8,7 @@
 #include "Cube.hpp"
 #include "Util.hpp"
 #include "Player.hpp"
+#include "Skybox.hpp"
 
 #include <glm/glm.hpp>
 
@@ -49,9 +50,11 @@ protected:
 
     LightSource m_light;
     const std::string &m_luaSceneFile;
+
     Player player;
     Chunk terrain;
     PlayerCamera camera;
     Controls ctrls;
     ParticleSystem particle_system;
+    Skybox skybox;
 };

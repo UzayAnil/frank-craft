@@ -71,3 +71,21 @@ ParticleShader::ParticleShader( string vert_path, string frag_path )
     posAttrib = m_shader.getAttribLocation("pos");
     m_shader.disable();
 }
+
+SkyboxShader* SkyboxShader::getInstance() {
+    static SkyboxShader skybox_shader(
+            CS488Window::getAssetFilePath("SkyboxVertexShader.vs"),
+            CS488Window::getAssetFilePath("SkyboxFragmentShader.fs")
+        );
+    return &skybox_shader;
+}
+
+SkyboxShader::SkyboxShader( string vert_path, string frag_path )
+        : Shader( vert_path, frag_path ) {
+    m_shader.enable();
+    P = m_shader.getUniformLocation("P");
+    V = m_shader.getUniformLocation("V");
+    posAttrib = m_shader.getAttribLocation("pos");
+    texAttrib = m_shader.getUniformLocation("tex");
+    m_shader.disable();
+}

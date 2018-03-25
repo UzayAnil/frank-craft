@@ -38,12 +38,12 @@ void Chunk::init() {
 
         glBindVertexArray( 0 );
         glBindBuffer( GL_ARRAY_BUFFER, 0 );
-
-        shader = CubeShader::getInstance();
     }
     CHECK_GL_ERRORS;
 
+    shader = CubeShader::getInstance();
     minecraftTex = new Texture( "terrain.png" );
+    CHECK_GL_ERRORS;
 }
 
 void Chunk::update() {
@@ -346,25 +346,26 @@ void Chunk::render() {
         return;
 
     shader->enable();
+    {
+        minecraftTex->bind( shader->texAttrib );
 
-    glBindVertexArray( vao );
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+        glBindVertexArray( vao );
+        glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
-    glEnableVertexAttribArray( shader->posAttrib );
-    glVertexAttribPointer( shader->posAttrib, 4, GL_BYTE, GL_FALSE, 0, 0);
+        glEnableVertexAttribArray( shader->posAttrib );
+        glVertexAttribPointer( shader->posAttrib, 4, GL_BYTE, GL_FALSE, 0, 0);
 
-    glDrawArrays(GL_TRIANGLES, 0, num_filled);
+        glDrawArrays(GL_TRIANGLES, 0, num_filled);
 
-    glBindVertexArray( 0 );
-    glBindBuffer( GL_ARRAY_BUFFER, 0 );
+        glBindVertexArray( 0 );
+        glBindBuffer( GL_ARRAY_BUFFER, 0 );
+    }
     CHECK_GL_ERRORS;
-
     shader->disable();
 }
 
 void Chunk::updateUniform( mat4 P, mat4 V ) {
     shader->enable();
-    minecraftTex->bind( shader->texAttrib );
     glUniformMatrix4fv( shader->P, 1, GL_FALSE, value_ptr(P));
     glUniformMatrix4fv( shader->V, 1, GL_FALSE, value_ptr(V));
     shader->disable();

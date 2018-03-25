@@ -27,6 +27,7 @@ void Winter::init() {
     terrain.init();
     terrain.genTerrain();
     particle_system.init();
+    skybox.init();
 
     initPerspectiveMatrix();
     initViewMatrix();
@@ -64,6 +65,7 @@ void Winter::uploadCommonSceneUniforms() {
     player.updateUniform( m_perpsective, m_view, m_light, ambientIntensity );
     terrain.updateUniform( m_perpsective, m_view );
     particle_system.updateUniform( m_perpsective, m_view );
+    skybox.updateUniform( m_perpsective, m_view );
 }
 
 /*
@@ -125,12 +127,13 @@ void Winter::guiLogic() {
  */
 void Winter::draw() {
     glEnable( GL_DEPTH_TEST );
-    glEnable(GL_CULL_FACE);
+    //glEnable(GL_CULL_FACE);
 
     camera.getViewMatrix();
     terrain.render();
     player.render();
     particle_system.render();
+    skybox.render();
 }
 
 /*

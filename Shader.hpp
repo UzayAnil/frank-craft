@@ -73,3 +73,17 @@ public:
 private:
     ParticleShader( std::string vert_path, std::string frag_path );
 };
+
+class SkyboxShader : public Shader {
+public:
+
+    static SkyboxShader* getInstance();
+
+    GLint P;
+    GLint V;
+    GLint posAttrib;
+    GLint texAttrib;
+
+private:
+    SkyboxShader( std::string vert_path, std::string frag_path );
+};

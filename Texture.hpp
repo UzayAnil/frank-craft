@@ -4,9 +4,10 @@
 
 class Texture {
 public:
-    enum Type { a };
+    enum Type { TEX2D, TEXCUBE };
 public:
     Texture( std::string img_file );
+    Texture( std::string img_file[6] );
     Texture( int width, int height, Texture::Type type );
     ~Texture();
     bool bind( GLint uniform );
