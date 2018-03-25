@@ -20,6 +20,7 @@ uniform mat3 NormalMatrix;
 out VsOutFsIn {
     vec3 position_ES; // Eye-space position
     vec3 normal_ES;   // Eye-space normal
+    vec3 reflected_ES; // Eye-space reflected
     LightSource light;
 } vs_out;
 
@@ -30,6 +31,9 @@ void main() {
     //-- Convert position and normal to Eye-Space:
     vs_out.position_ES = (ModelView * pos4).xyz;
     vs_out.normal_ES = normalize(NormalMatrix * normal);
+
+    vec3 viewVector = normalize( vs_out.position_ES );
+    vs_out.reflected_ES = mat3(ModelView) * reflect( viewVector, vs_out.normal_ES );
 
     vs_out.light = light;
 

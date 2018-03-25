@@ -2,3 +2,5 @@ Winter
 build/*
 imgui.ini
 Makefile
+Assets/fs.fs
+Assets/vs.vs

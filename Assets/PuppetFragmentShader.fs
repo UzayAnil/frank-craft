@@ -8,6 +8,7 @@ struct LightSource {
 in VsOutFsIn {
     vec3 position_ES; // Eye-space position
     vec3 normal_ES;   // Eye-space normal
+    vec3 reflected_ES; // Eyes-space reflected
     LightSource light;
 } fs_in;
 
@@ -51,6 +52,10 @@ vec3 phongModel(vec3 fragPosition, vec3 fragNormal) {
     return ambientIntensity + light.rgbIntensity * (diffuse + specular);
 }
 
+uniform samplerCube envMapTex;
+
 void main() {
-    fragColour = vec4(phongModel(fs_in.position_ES, fs_in.normal_ES), 1.0);
+    vec4 c1 = vec4(phongModel(fs_in.position_ES, fs_in.normal_ES), 1.0);
+    vec4 c2 = texture( envMapTex, fs_in.reflected_ES );
+    fragColour = mix( c1, c2, 0.7 );
 }

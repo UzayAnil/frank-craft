@@ -11,14 +11,6 @@ CubeShader* CubeShader::getInstance() {
     return &cube_shader;
 }
 
-PuppetShader* PuppetShader::getInstance() {
-    static PuppetShader puppet_shader(
-            CS488Window::getAssetFilePath("VertexShader.vs"),
-            CS488Window::getAssetFilePath("FragmentShader.fs")
-        );
-    return &puppet_shader;
-}
-
 CubeShader::CubeShader( string vert_path, string frag_path )
         : Shader( vert_path, frag_path ) {
     m_shader.enable();
@@ -28,6 +20,15 @@ CubeShader::CubeShader( string vert_path, string frag_path )
     texAttrib = m_shader.getUniformLocation("tex");
     m_shader.disable();
 }
+
+PuppetShader* PuppetShader::getInstance() {
+    static PuppetShader puppet_shader(
+            CS488Window::getAssetFilePath("PuppetVertexShader.vs"),
+            CS488Window::getAssetFilePath("PuppetFragmentShader.fs")
+        );
+    return &puppet_shader;
+}
+
 
 PuppetShader::PuppetShader( string vert_path, string frag_path )
     : Shader( vert_path, frag_path ) {
@@ -49,6 +50,8 @@ PuppetShader::PuppetShader( string vert_path, string frag_path )
         kdAttrib = m_shader.getUniformLocation("material.kd");
         ksAttrib = m_shader.getUniformLocation("material.ks");
         shineAttrib = m_shader.getUniformLocation("material.shininess");
+
+        envMapTexAttrib = m_shader.getUniformLocation("envMapTex");
     }
 
     m_shader.disable();

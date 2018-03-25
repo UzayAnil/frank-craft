@@ -9,6 +9,7 @@
 #include "SceneNode.hpp"
 #include "JointNode.hpp"
 #include "GeometryNode.hpp"
+#include "Texture.hpp"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -55,4 +56,5 @@ private:
 
     glm::mat4 V;
     PuppetShader* shader;
+    Texture *envMapTex;
 };

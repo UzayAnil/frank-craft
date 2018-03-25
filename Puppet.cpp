@@ -41,6 +41,13 @@ void Puppet::init( std::string file ) {
         uploadVertexDataToVbos(*meshConsolidator);
         mapVboDataToVertexShaderInputLocations();
     }
+    CHECK_GL_ERRORS;
+
+    {
+        string files[6] = { "right.png", "left.png", "top.png", "bottom.png", "back.png", "front.png"};
+        envMapTex = new Texture( files );
+    }
+    CHECK_GL_ERRORS;
 }
 
 void Puppet::loadPuppet(const std::string & filename) {
@@ -166,6 +173,8 @@ void Puppet::mapVboDataToVertexShaderInputLocations()
 void Puppet::render() {
     shader->enable();
     {
+        envMapTex->bind( shader->envMapTexAttrib );
+
         glBindVertexArray(m_vao_puppet_meshData);
 
         renderSceneGraph( &(*m_puppet), V );

@@ -42,6 +42,8 @@ public:
     GLint ksAttrib;
     GLint shineAttrib;
 
+    GLint envMapTexAttrib;
+
 private:
     PuppetShader( std::string vert_path, std::string frag_path );
 };
