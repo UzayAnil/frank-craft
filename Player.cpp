@@ -10,7 +10,7 @@ using namespace std;
 
 Player::Player()
     : angle( 0 ), move_speed( 0 ), turn_speed( 0 ), up_speed( 0 ), jump_cnts( 3 ),
-    pos(2, 5, 2), dir( 0, 0, 1 ) {
+    pos(2, 2, 2), dir( 0, 0, 1 ) {
     M = translate( M, pos );
 }
 
@@ -18,7 +18,7 @@ void Player::init( std::string file ) {
     puppet.init( file );
 }
 
-void Player::move( Controls &ctrls, float delta_time, Chunk &terrain ) {
+void Player::move( Controls &ctrls, float delta_time, SuperChunk &terrain ) {
     checkInput( ctrls );
 
     // turn
@@ -48,6 +48,7 @@ void Player::move( Controls &ctrls, float delta_time, Chunk &terrain ) {
     }
     M = translate( M, vec3(0, new_y-pos.y, 0) );
     pos.y = new_y;
+    cout<<pos.x<<" "<<pos.z<<endl;
 }
 
 void Player::checkInput( Controls &ctrls ) {

@@ -16,6 +16,7 @@ CubeShader::CubeShader( string vert_path, string frag_path )
     m_shader.enable();
     P = m_shader.getUniformLocation("P");
     V = m_shader.getUniformLocation("V");
+    M = m_shader.getUniformLocation("M");
     posAttrib = m_shader.getAttribLocation("pos");
     texAttrib = m_shader.getUniformLocation("tex");
     m_shader.disable();

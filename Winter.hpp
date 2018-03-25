@@ -5,7 +5,7 @@
 #include "cs488-framework/ShaderProgram.hpp"
 
 #include "Camera.hpp"
-#include "Cube.hpp"
+#include "Chunk.hpp"
 #include "Util.hpp"
 #include "Player.hpp"
 #include "Skybox.hpp"
@@ -52,7 +52,7 @@ protected:
     const std::string &m_luaSceneFile;
 
     Player player;
-    Chunk terrain;
+    SuperChunk terrain;
     PlayerCamera camera;
     Controls ctrls;
     ParticleSystem particle_system;

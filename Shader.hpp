@@ -55,6 +55,7 @@ public:
 
     GLint P;
     GLint V;
+    GLint M;
     GLint posAttrib;
     GLint texAttrib;
 

@@ -2,7 +2,7 @@
 #include <glm/glm.hpp>
 #include "Util.hpp"
 #include "Puppet.hpp"
-#include "Cube.hpp"
+#include "Chunk.hpp"
 #include "Particle.hpp"
 
 class Player {
@@ -13,7 +13,7 @@ public:
     void render();
     void updateUniform( const glm::mat4 &P, const glm::mat4 &V,  const LightSource &m_light, const glm::vec3 &ambientIntensity );
 
-    void move( Controls &ctrls, float delta_time, Chunk &terrain );
+    void move( Controls &ctrls, float delta_time, SuperChunk &terrain );
     void checkInput( Controls &ctrls );
 
     //glm::mat4 getViewMatrix();
