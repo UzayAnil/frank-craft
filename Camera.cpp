@@ -45,7 +45,7 @@ glm::vec3 PlayerCamera::getCamPos( float horDis, float vertDis ) {
 
     pos.x = player.pos.x - dx;
     pos.z = player.pos.z - dz;
-    pos.y = player.pos.y + vertDis;
+    pos.y = player.pos.y + 3 + vertDis;
 
     return pos;
 }
@@ -54,7 +54,7 @@ mat4 PlayerCamera::getViewMatrix() {
     float horDis = getHorDis();
     float vertDis = getVertDis();
     vec3 from = getCamPos( horDis, vertDis );
-    vec3 to = player.pos;
+    vec3 to = player.pos + vec3(0, 3, 0);
     vec3 up = vec3(0, 1, 0);
     return glm::lookAt( from, to, up );
 }

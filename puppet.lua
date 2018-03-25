@@ -1,6 +1,6 @@
 root_node = gr.node( 'root' )
 --root_node:rotate( 'y', -20.0 )
---root_node:scale( 0.25, 0.25, 0.25 )
+root_node:scale( 0.5, 0.5, 0.5 )
 root_node:translate( 0.0, 2.0, 0.0 )
 
 ball_node = gr.node( 'ball' )

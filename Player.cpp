@@ -10,7 +10,7 @@ using namespace std;
 
 Player::Player()
     : angle( 0 ), move_speed( 0 ), turn_speed( 0 ), up_speed( 0 ), jump_cnts( 3 ),
-    pos(2, 2, 2), dir( 0, 0, 1 ) {
+    pos( SuperChunk::NCX*Chunk::SX/2, 300, SuperChunk::NCZ*Chunk::SZ/2), dir( 0, 0, 1 ) {
     M = translate( M, pos );
 }
 
@@ -38,10 +38,11 @@ void Player::move( Controls &ctrls, float delta_time, SuperChunk &terrain ) {
     }
 
     // fall
-    up_speed -= delta_time * GRAVITY;
+    up_speed -= delta_time * 0.5 * GRAVITY;
     float new_y = pos.y + up_speed;
     if ( new_y < 0 ) new_y = 0;
-    if ( new_y < pos.y && terrain.get( floor(pos.x), floor(new_y), floor(pos.z) ) ) {
+    cout<<"lol: "<<terrain.get( floor(pos.x), floor(new_y), floor(pos.z), true )<<endl;
+    if ( new_y < pos.y && terrain.get( floor(pos.x), floor(new_y), floor(pos.z) ) != BlockType::Empty ) {
         new_y = floor(new_y)+1;
         up_speed = 0;
         jump_cnts = 3;
@@ -83,10 +84,3 @@ void Player::updateUniform( const glm::mat4 &P, const glm::mat4 &V, const LightS
 void Player::render() {
     puppet.render();
 }
-
-//mat4 Player::getViewMatrix() {
-    //m_view = glm::lookAt(
-        //glm::vec3( 0.0f, 2.0f, -float(4)*2.0*M_SQRT1_2 ),
-        //glm::vec3( 0.0f, 2.0f, 0.0f ),
-        //glm::vec3( 0.0f, 1.0f, 0.0f ) );
-//}

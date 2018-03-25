@@ -17,9 +17,9 @@ public:
 
 private:
 
-    static constexpr float MIN_ZOOM = 10;
+    static constexpr float MIN_ZOOM = 4;
     static constexpr float MAX_ZOOM = 40;
-    static constexpr float DEFAULT_ZOOM = 20;
+    static constexpr float DEFAULT_ZOOM = 8;
     static constexpr float ZOOM_SPEED = 1.4;
 
     static constexpr float MIN_PITCH = -89;

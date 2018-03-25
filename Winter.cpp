@@ -6,7 +6,6 @@
 #include <glm/gtx/io.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include <cassert>
 #include <cstdlib>
 
 using namespace std;
