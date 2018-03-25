@@ -7,6 +7,7 @@
 #include "cs488-framework/GlErrorCheck.hpp"
 #include "cs488-framework/ShaderProgram.hpp"
 #include "Shader.hpp"
+#include "Texture.hpp"
 
 typedef glm::tvec4<GLbyte> byte4;
 
@@ -21,7 +22,7 @@ public:
     static const int SY = 64;
     static const int SZ = 64;
 
-    Chunk() : vao(0), vbo(0) {
+    Chunk() : vao(0), vbo(0), minecraftTex(nullptr) {
         std::memset(grid, 0, sizeof(grid));
         num_filled = 0;
         changed = true;
@@ -32,6 +33,7 @@ public:
     void init();
 
     ~Chunk() {
+        if ( minecraftTex != nullptr ) delete minecraftTex;
         glDeleteBuffers( 1, &vbo );
         glDeleteVertexArrays( 1, &vao );
 
@@ -74,7 +76,7 @@ private:
     GLuint vao;
     GLuint vbo;
     GLuint ebo;
-    GLuint texture;
+    Texture *minecraftTex;
 
     int num_filled;
     bool changed;

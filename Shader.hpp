@@ -53,8 +53,6 @@ public:
 
     GLint P;
     GLint V;
-    GLint texture;
-
     GLint posAttrib;
     GLint texAttrib;
 

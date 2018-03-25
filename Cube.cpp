@@ -2,7 +2,6 @@
 #include "Terrain.hpp"
 #include <glm/gtc/type_ptr.hpp>
 #include <lodepng/lodepng.h>
-#include <vector>
 #include <iostream>
 
 using namespace std;
@@ -44,31 +43,7 @@ void Chunk::init() {
     }
     CHECK_GL_ERRORS;
 
-    // texture
-    {
-        std::vector<unsigned char> image;
-        unsigned int width, height;
-        unsigned error = lodepng::decode(image, width, height, CS488Window::getAssetFilePath("terrain.png").c_str());
-        if(error != 0) {
-            std::cout << "error " << error << ": " << lodepng_error_text(error) << std::endl;
-            return;
-        }
-
-        glGenTextures(1, &texture);
-
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texture);
-
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, &image[0]);
-
-    }
-    CHECK_GL_ERRORS;
+    minecraftTex = new Texture( "terrain.png" );
 }
 
 void Chunk::update() {
@@ -389,6 +364,7 @@ void Chunk::render() {
 
 void Chunk::updateUniform( mat4 P, mat4 V ) {
     shader->enable();
+    minecraftTex->bind( shader->texAttrib );
     glUniformMatrix4fv( shader->P, 1, GL_FALSE, value_ptr(P));
     glUniformMatrix4fv( shader->V, 1, GL_FALSE, value_ptr(V));
     shader->disable();
