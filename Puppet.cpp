@@ -1,5 +1,4 @@
 #include "Puppet.hpp"
-#include "cs488-framework/CS488Window.hpp"
 #include "cs488-framework/OpenGLImport.hpp"
 #include "scene_lua.hpp"
 #include "Util.hpp"
@@ -28,9 +27,9 @@ void Puppet::init( std::string file ) {
         // positions, and normals will be extracted and stored within the MeshConsolidator
         // class.
         unique_ptr<MeshConsolidator> meshConsolidator (new MeshConsolidator{
-                CS488Window::getAssetFilePath("cube.obj"),
-                CS488Window::getAssetFilePath("sphere.obj"),
-                CS488Window::getAssetFilePath("suzanne.obj")
+            getAssetFilePath("cube.obj"),
+            getAssetFilePath("sphere.obj"),
+            getAssetFilePath("suzanne.obj")
         });
 
 

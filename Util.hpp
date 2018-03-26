@@ -1,6 +1,7 @@
 #pragma once
 
 #include <glm/glm.hpp>
+#include <string>
 
 #define ggEps 0.0001
 #define GRAVITY 9.81
@@ -25,3 +26,4 @@ struct Controls {
 
 double lerp(double t, double a, double b);
 double getTime();
+std::string getAssetFilePath(const char *base);

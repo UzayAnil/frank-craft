@@ -2,7 +2,7 @@
 
 out vec4 fragColour;
 uniform sampler2D tex;
-varying vec4 texcoord;
+in vec4 texcoord;
 
 void main() {
     if ( texcoord.w < 0 ) {

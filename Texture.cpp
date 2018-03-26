@@ -1,5 +1,5 @@
 #include "Texture.hpp"
-#include "cs488-framework/CS488Window.hpp"
+#include "Util.hpp"
 #include "cs488-framework/GlErrorCheck.hpp"
 #include <iostream>
 #include <lodepng/lodepng.h>
@@ -11,7 +11,7 @@ Texture::Texture( string img_file ) {
     {
         std::vector<unsigned char> image;
         unsigned int width, height;
-        auto err = lodepng::decode(image, width, height, CS488Window::getAssetFilePath(img_file.c_str()));
+        auto err = lodepng::decode(image, width, height, getAssetFilePath(img_file.c_str()));
 
         if ( err != 0 ) {
             throw "Texture loading error, texture img file: "+img_file;
@@ -42,7 +42,7 @@ Texture::Texture( string img_file[6] ) {
         unsigned int height[6];
 
         for ( int i = 0; i < 6; i++ ) {
-            auto err = lodepng::decode(image[i], width[i], height[i], CS488Window::getAssetFilePath(img_file[i].c_str()));
+            auto err = lodepng::decode(image[i], width[i], height[i], getAssetFilePath(img_file[i].c_str()));
 
             if ( err != 0 ) {
                 throw "Texture loading error, texture img file: "+img_file[i];

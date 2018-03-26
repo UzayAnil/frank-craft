@@ -1,12 +1,12 @@
-#include "cs488-framework/CS488Window.hpp"
 #include "Shader.hpp"
+#include "Util.hpp"
 #include <iostream>
 using namespace std;
 
 CubeShader* CubeShader::getInstance() {
     static CubeShader cube_shader(
-            CS488Window::getAssetFilePath("CubeVertexShader.vs"),
-            CS488Window::getAssetFilePath("CubeFragmentShader.fs")
+            getAssetFilePath("CubeVertexShader.vs"),
+            getAssetFilePath("CubeFragmentShader.fs")
         );
     return &cube_shader;
 }
@@ -24,8 +24,8 @@ CubeShader::CubeShader( string vert_path, string frag_path )
 
 PuppetShader* PuppetShader::getInstance() {
     static PuppetShader puppet_shader(
-            CS488Window::getAssetFilePath("PuppetVertexShader.vs"),
-            CS488Window::getAssetFilePath("PuppetFragmentShader.fs")
+            getAssetFilePath("PuppetVertexShader.vs"),
+            getAssetFilePath("PuppetFragmentShader.fs")
         );
     return &puppet_shader;
 }
@@ -60,8 +60,8 @@ PuppetShader::PuppetShader( string vert_path, string frag_path )
 
 ParticleShader* ParticleShader::getInstance() {
     static ParticleShader particle_shader(
-            CS488Window::getAssetFilePath("ParticleVertexShader.vs"),
-            CS488Window::getAssetFilePath("ParticleFragmentShader.fs")
+            getAssetFilePath("ParticleVertexShader.vs"),
+            getAssetFilePath("ParticleFragmentShader.fs")
         );
     return &particle_shader;
 }
@@ -78,8 +78,8 @@ ParticleShader::ParticleShader( string vert_path, string frag_path )
 
 SkyboxShader* SkyboxShader::getInstance() {
     static SkyboxShader skybox_shader(
-            CS488Window::getAssetFilePath("SkyboxVertexShader.vs"),
-            CS488Window::getAssetFilePath("SkyboxFragmentShader.fs")
+            getAssetFilePath("SkyboxVertexShader.vs"),
+            getAssetFilePath("SkyboxFragmentShader.fs")
         );
     return &skybox_shader;
 }

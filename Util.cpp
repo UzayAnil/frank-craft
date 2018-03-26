@@ -12,3 +12,7 @@ double getTime() {
     return duration_cast<milliseconds>(
             system_clock::now().time_since_epoch()).count();
 }
+
+string getAssetFilePath(const char *base) {
+    return string("./Assets/") + string(base);
+}
