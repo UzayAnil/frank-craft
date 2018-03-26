@@ -40,7 +40,7 @@ public:
 
 private:
     byte4* vertex;
-    CubeShader *shader;
+    ChunkShader *shader;
     BlockType grid[SX][SY][SZ];
 
     GLuint vao;
@@ -54,9 +54,13 @@ private:
 
 class SuperChunk {
 public:
-    static const int NCX = 32; // number of chunk in the X direction
+    //TODO
+    static const int NCX = 16; // number of chunk in the X direction
     static const int NCY = 6;
-    static const int NCZ = 32;
+    static const int NCZ = 16;
+    //static const int NCX = 32; // number of chunk in the X direction
+    //static const int NCY = 6;
+    //static const int NCZ = 32;
     Chunk *c[NCX][NCY][NCZ];
 
     SuperChunk();
@@ -72,7 +76,7 @@ public:
     void render();
 
 private:
-    CubeShader *shader;
+    ChunkShader *shader;
     Texture *minecraftTex;
 };
 

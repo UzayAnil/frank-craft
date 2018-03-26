@@ -55,12 +55,25 @@ public:
 
     GLint P;
     GLint V;
+    GLint posAttrib;
+
+private:
+    CubeShader( std::string vert_path, std::string frag_path );
+};
+
+class ChunkShader : public Shader {
+public:
+
+    static ChunkShader* getInstance();
+
+    GLint P;
+    GLint V;
     GLint M;
     GLint posAttrib;
     GLint texAttrib;
 
 private:
-    CubeShader( std::string vert_path, std::string frag_path );
+    ChunkShader( std::string vert_path, std::string frag_path );
 };
 
 class ParticleShader : public Shader {

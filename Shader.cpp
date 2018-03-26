@@ -16,6 +16,23 @@ CubeShader::CubeShader( string vert_path, string frag_path )
     m_shader.enable();
     P = m_shader.getUniformLocation("P");
     V = m_shader.getUniformLocation("V");
+    posAttrib = m_shader.getAttribLocation("pos");
+    m_shader.disable();
+}
+
+ChunkShader* ChunkShader::getInstance() {
+    static ChunkShader cube_shader(
+            getAssetFilePath("ChunkVertexShader.vs"),
+            getAssetFilePath("ChunkFragmentShader.fs")
+        );
+    return &cube_shader;
+}
+
+ChunkShader::ChunkShader( string vert_path, string frag_path )
+        : Shader( vert_path, frag_path ) {
+    m_shader.enable();
+    P = m_shader.getUniformLocation("P");
+    V = m_shader.getUniformLocation("V");
     M = m_shader.getUniformLocation("M");
     posAttrib = m_shader.getAttribLocation("pos");
     texAttrib = m_shader.getUniformLocation("tex");

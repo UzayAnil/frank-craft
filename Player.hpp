@@ -4,6 +4,7 @@
 #include "Puppet.hpp"
 #include "Chunk.hpp"
 #include "Particle.hpp"
+#include "Cube.hpp"
 
 class Player {
 public:
@@ -34,4 +35,5 @@ private:
     int jump_cnts;
     glm::mat4 M;
     Puppet puppet;
+    Cube boundingBox;
 };

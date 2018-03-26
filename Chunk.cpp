@@ -79,7 +79,7 @@ void Chunk::init() {
     }
     CHECK_GL_ERRORS;
 
-    shader = CubeShader::getInstance();
+    shader = ChunkShader::getInstance();
     CHECK_GL_ERRORS;
 }
 
@@ -380,7 +380,7 @@ void SuperChunk::set(int x, int y, int z, BlockType type) {
 }
 
 void SuperChunk::init() {
-    shader = CubeShader::getInstance();
+    shader = ChunkShader::getInstance();
     minecraftTex = new Texture( "terrain.png" );
 
     for(int x = 0; x < NCX; x++) {
