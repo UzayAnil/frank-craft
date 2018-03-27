@@ -4,6 +4,7 @@
 #include <cassert>
 using namespace std;
 
+// open and load file
 Audio::Audio() {
     dev = alcOpenDevice( nullptr );
     if(!dev) throw "Can't open device";

@@ -9,7 +9,7 @@ using namespace glm;
 using namespace std;
 
 Player::Player()
-    : angle( 0 ), move_speed( 0 ), turn_speed( 0 ), up_speed( 0 ), jump_cnts( 3 ),
+    : yaw( 0 ), pitch( 0 ), move_speed( 0 ), turn_speed( 0 ), up_speed( 0 ), jump_cnts( 3 ),
     pos( SuperChunk::NCX*Chunk::SX/2, 300, SuperChunk::NCZ*Chunk::SZ/2), dir( 0, 0, 1 ),
     boundingBox( vec3(-.5, 1, -.5), vec3(.5, 3.2, .5), true ), show_bounding( false ) {
     M = translate( M, pos );
@@ -70,12 +70,23 @@ bool downCollide( float old_y, float &new_y, vec3 min, vec3 max, SuperChunk &ter
     return false;
 }
 
+void Player::updatePitch( float delta ) {
+    pitch += delta * PITCH_SPEED;
+    pitch = clamp( pitch, MIN_PITCH, MAX_PITCH );
+}
+
+void Player::updateYaw( float delta ) {
+    float d_angle = YAW_SPEED * delta;
+    yaw += d_angle;
+    M = rotate( M, degreesToRadians(d_angle), vec3(0,1,0) );
+}
+
 void Player::move( Controls &ctrls, float delta_time, SuperChunk &terrain ) {
     checkInput( ctrls );
 
     // turn
     float d_angle = turn_speed * delta_time;
-    angle += d_angle;
+    yaw += d_angle;
     M = rotate( M, degreesToRadians(d_angle), vec3(0,1,0) );
 
     // move

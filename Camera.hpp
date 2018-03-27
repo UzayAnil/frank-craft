@@ -6,14 +6,17 @@ class PlayerCamera {
 public:
     PlayerCamera( Player &player );
 
-    void updateZoom( float delta_time );
-    void updatePitch( float delta_time );
-    void updateYaw( float delta_time );
+    void updateZoom( float delta );
+    void updatePitch( float delta );
+    void updateYaw( float delta );
 
     float getHorDis();
     float getVertDis();
     glm::vec3 getCamPos( float horDis, float vertDis );
     glm::mat4 getViewMatrix();
+
+public:
+    bool third_person_perspective;
 
 private:
 

@@ -19,8 +19,12 @@ public:
     void move( Controls &ctrls, float delta_time, SuperChunk &terrain );
     void checkInput( Controls &ctrls );
 
+    void updatePitch( float delta );
+    void updateYaw( float delta );
+
 public:
-    float angle;
+    float yaw;
+    float pitch;
     glm::vec3 pos;
     glm::vec3 dir;
     bool show_bounding;
@@ -29,6 +33,11 @@ private:
     static constexpr float MOVE_SPEED = 20;
     static constexpr float TURN_SPEED = 150;
     static constexpr float JUMP_POWER = 2;
+
+    static constexpr float MIN_PITCH = -89;
+    static constexpr float MAX_PITCH = 89;
+    static constexpr float PITCH_SPEED = -0.1;
+    static constexpr float YAW_SPEED = 0.1;
 
     float move_speed;
     float turn_speed;

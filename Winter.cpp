@@ -147,6 +147,9 @@ void Winter::guiLogic() {
             show_particles = !show_particles;
         }
 
+        if( ImGui::Button( "Toggle Perspective" ) ) { 
+            camera.third_person_perspective = !camera.third_person_perspective;
+        }
     ImGui::End();
 }
 
@@ -205,8 +208,13 @@ bool Winter::mouseMoveEvent ( double xPos, double yPos) {
         float dy = yPos - ctrls.yPos;
 
         if ( ctrls.mouse_left_down ) {
-            camera.updateYaw( dx );
-            camera.updatePitch( dy );
+            if ( camera.third_person_perspective ) {
+                camera.updateYaw( dx );
+                camera.updatePitch( dy );
+            } else {
+                player.updateYaw( dx );
+                player.updatePitch( dy );
+            }
         }
 
         ctrls.xPos = xPos;
@@ -240,7 +248,9 @@ bool Winter::mouseButtonInputEvent ( int button, int actions, int mods) {
 
 bool Winter::mouseScrollEvent ( double xOffSet, double yOffSet) {
     bool eventHandled(true);
-    camera.updateZoom(yOffSet);
+    if ( camera.third_person_perspective ) {
+        camera.updateZoom(yOffSet);
+    }
     return eventHandled;
 }
 
