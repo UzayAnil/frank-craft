@@ -3,6 +3,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <lodepng/lodepng.h>
 #include <iostream>
+#include <cstdlib> 
 
 using namespace std;
 using namespace glm;
@@ -28,13 +29,25 @@ Chunk::~Chunk() {
 
 void getSides( BlockType type, uint8_t &up, uint8_t &down, uint8_t &side) {
     if( type == BlockType::Grass ) {
-        up = 0-16;
-        down = 2-16;
+        up = 1;
+        down = 2;
         side = 3;
     } else if ( type == BlockType::Dirt ) {
-        up = 2-16;
-        down = 2-16;
-        side = 2;
+        up = 4;
+        down = 5;
+        side = 6;
+    } else if ( type == BlockType::Trunk ) {
+        up = 7;
+        down = 8;
+        side = 9;
+    } else if ( type == BlockType::Leaf ) {
+        up = 10;
+        down = 11;
+        side = 12;
+    } else if ( type == BlockType::Water ) {
+        up = 13;
+        down = 14;
+        side = 15;
     }
 }
 
@@ -354,6 +367,9 @@ BlockType SuperChunk::get(int x, int y, int z, bool debug) const {
 }
 
 void SuperChunk::set(int x, int y, int z, BlockType type) {
+    if( !( 0 <= x && x < NCX*Chunk::SX && 0 <= y && y < NCY*Chunk::SY && 0 <= z && z < NCZ*Chunk::SZ ) )
+
+        return;
     int cx = x / Chunk::SX;
     int cy = y / Chunk::SY;
     int cz = z / Chunk::SZ;
@@ -362,7 +378,8 @@ void SuperChunk::set(int x, int y, int z, BlockType type) {
     int yy = y % Chunk::SY;
     int zz = z % Chunk::SZ;
 
-    if( !( 0 <= cx && cx < NCX && 0 <= cy && cy < NCY && 0 <= cz && cz < NCZ ) ) cout<<" setting invalid "<<endl;
+    if( !( 0 <= cx && cx < NCX && 0 <= cy && cy < NCY && 0 <= cz && cz < NCZ ) )
+        return;
     c[cx][cy][cz]->set( xx, yy, zz, type );
 }
 
@@ -385,9 +402,29 @@ void SuperChunk::genTerrain() {
             double noise = octiveNoise( float(x)/Chunk::SX/10, float(z)/Chunk::SZ/10, 5, 2);
             int h = (int)clamp( noise*2*double(NCY*Chunk::SY)-.7*(NCY*Chunk::SY), 1.0, (double)NCY*Chunk::SY );
 
-            for ( int y = 0; y < h; y++ ) {
+            int y;
+            for ( y = 0; y < h; y++ ) {
                 set( x, y, z, BlockType::Dirt );
                 if ( y == h-1 ) set( x, y, z, BlockType::Grass );
+            }
+
+            if ( y < Chunk::SY ) {
+                for ( ; y < Chunk::SY; y++ ) {
+                    set( x, y, z, BlockType::Water );
+                }
+            } else if ( rand()%(16*16) == 0 ) {
+                if ( Chunk::SY * NCY > h + 25 ) {
+                    int hh = h+5+rand()%10;
+                    for ( int i=h; i<hh; i++ ) {
+                        set( x, i, z, BlockType::Trunk );
+                    }
+
+                    int size = rand()%3 + 5;
+                    for ( int i=0; i<size; i++ )
+                        for ( int j=-size/2; j < size/2+1; j++ )
+                            for ( int k=-size/2; k < size/2+1; k++ )
+                                set( x+j, hh+i, z+k, BlockType::Leaf);
+                }
             }
         }
     }

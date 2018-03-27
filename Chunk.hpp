@@ -16,7 +16,8 @@ enum BlockType {
     Grass = 1,
     Dirt = 2,
     Trunk = 3,
-    Leaf = 4
+    Leaf = 4,
+    Water = 5
 };
 
 class Chunk {
@@ -58,12 +59,9 @@ private:
 class SuperChunk {
 public:
     //TODO
-    static const int NCX = 16; // number of chunk in the X direction
+    static const int NCX = 32; // number of chunk in the X direction
     static const int NCY = 6;
-    static const int NCZ = 16;
-    //static const int NCX = 32; // number of chunk in the X direction
-    //static const int NCY = 6;
-    //static const int NCZ = 32;
+    static const int NCZ = 32;
     Chunk *c[NCX][NCY][NCZ];
 
     SuperChunk();
