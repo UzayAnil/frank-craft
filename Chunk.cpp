@@ -349,6 +349,8 @@ SuperChunk::~SuperChunk() {
 }
 
 BlockType SuperChunk::get(int x, int y, int z, bool debug) const {
+    if( !( 0 <= x && x < NCX*Chunk::SX && 0 <= y && y < NCY*Chunk::SY && 0 <= z && z < NCZ*Chunk::SZ ) )
+        return BlockType::Empty;
     int cx = x / Chunk::SX;
     int cy = y / Chunk::SY;
     int cz = z / Chunk::SZ;
@@ -368,7 +370,6 @@ BlockType SuperChunk::get(int x, int y, int z, bool debug) const {
 
 void SuperChunk::set(int x, int y, int z, BlockType type) {
     if( !( 0 <= x && x < NCX*Chunk::SX && 0 <= y && y < NCY*Chunk::SY && 0 <= z && z < NCZ*Chunk::SZ ) )
-
         return;
     int cx = x / Chunk::SX;
     int cy = y / Chunk::SY;
@@ -455,4 +456,13 @@ void SuperChunk::updateUniform( mat4 P, mat4 V ) {
     glUniformMatrix4fv( shader->P, 1, GL_FALSE, value_ptr(P));
     glUniformMatrix4fv( shader->V, 1, GL_FALSE, value_ptr(V));
     shader->disable();
+}
+
+bool SuperChunk::checkInBound( vec3 pos ) {
+    int x = pos.x;
+    int y = pos.y;
+    int z = pos.z;
+    if( !( 0 <= x && x < NCX*Chunk::SX && 0 <= y && y < NCY*Chunk::SY && 0 <= z && z < NCZ*Chunk::SZ ) )
+        return false;
+    return true;
 }

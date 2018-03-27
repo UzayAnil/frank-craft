@@ -12,6 +12,7 @@ public:
     void walk();
     void jump();
     void land();
+    void death();
 private:
     ALCdevice *dev;
     ALCcontext *ctx;
@@ -24,6 +25,9 @@ private:
 
     ALuint land_source;
     ALuint land_buffer;
+
+    ALuint death_source;
+    ALuint death_buffer;
 
     irrklang::ISoundEngine* soundEngine;
 

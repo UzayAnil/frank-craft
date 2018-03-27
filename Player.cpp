@@ -9,7 +9,8 @@ using namespace glm;
 using namespace std;
 
 Player::Player()
-    : yaw( 0 ), pitch( 0 ), move_speed( 0 ), turn_speed( 0 ), up_speed( 0 ), jump_cnts( 3 ),
+    : dead( false ),
+    yaw( 0 ), pitch( 0 ), move_speed( 0 ), turn_speed( 0 ), up_speed( 0 ), jump_cnts( 3 ),
     pos( SuperChunk::NCX*Chunk::SX/2, 300, SuperChunk::NCZ*Chunk::SZ/2), dir( 0, 0, 1 ),
     boundingBox( vec3(-.5, 1, -.5), vec3(.5, 3.2, .5), true ), show_bounding( false ) {
     M = translate( M, pos );
@@ -116,6 +117,8 @@ void Player::move( Controls &ctrls, float delta_time, SuperChunk &terrain ) {
 
     newM = translate( M, vec3(0, new_y-pos.y, 0) );
     if ( downCollide( pos.y, new_y, min, max, terrain ) ) {
+
+        if ( dead ) throw "game over";
         newM = translate( M, vec3(0, new_y-pos.y, 0) );
         if ( abs(new_y-pos.y) > ggEps )
             audio->land();
@@ -127,10 +130,18 @@ void Player::move( Controls &ctrls, float delta_time, SuperChunk &terrain ) {
         audio->walk();
 
     pos.y = new_y;
+
+    if ( !dead && fabs(pos.y-0)<ggEps && !terrain.checkInBound(pos) ) {
+        dead = true;
+        audio->death();
+        up_speed = JUMP_POWER*2;
+    }
     M = newM;
 }
 
 void Player::attack( SuperChunk &terrain, ParticleSystem &particle_system ) {
+
+    if ( dead ) return;
 
     vec3 dirs[3];
     dirs[0] = normalize(vec3(transpose(inverse(M)) * vec4(0,0,1,1) ));
@@ -163,6 +174,9 @@ void Player::attack( SuperChunk &terrain, ParticleSystem &particle_system ) {
 }
 
 void Player::checkInput( Controls &ctrls ) {
+
+    if ( dead ) return;
+
     if ( ctrls.W ) {
         move_speed = MOVE_SPEED;
     } else if ( ctrls.S ) {

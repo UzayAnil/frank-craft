@@ -40,6 +40,7 @@ private:
     static constexpr float PITCH_SPEED = -0.1;
     static constexpr float YAW_SPEED = 0.1;
 
+    bool dead;
     float move_speed;
     float turn_speed;
     float up_speed;

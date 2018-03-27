@@ -75,6 +75,7 @@ public:
 
     void updateUniform( glm::mat4 P, glm::mat4 V );
     void render();
+    bool checkInBound( glm::vec3 pos );
 
 private:
     ChunkShader *shader;

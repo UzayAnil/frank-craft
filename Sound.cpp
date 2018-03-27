@@ -51,6 +51,17 @@ Audio::Audio() {
 
     loadWav("Assets/land.wav", land_source, land_buffer);
 
+    alGenSources((ALuint)1, &death_source);
+    alGenBuffers((ALuint)1, &death_buffer);
+    alSourcei(death_source, AL_SOURCE_RELATIVE, AL_TRUE);
+    alSourcef(death_source, AL_PITCH, 1);
+    alSourcef(death_source, AL_GAIN, 0.5f);
+    alSource3f(death_source, AL_POSITION, 0.0f, 0.0f, 0.0f);
+    alSource3f(death_source, AL_VELOCITY, 0.0f, 0.0f, 0.0f);
+    alSourcei(death_source, AL_LOOPING, AL_FALSE);
+
+    loadWav("Assets/death.wav", death_source, death_buffer);
+
     soundEngine = createIrrKlangDevice();
     soundEngine->play2D("Assets/background.wav");
 
@@ -107,10 +118,15 @@ void Audio::walk() {
 
 void Audio::jump() {
     int state; alGetSourcei( jump_source, AL_SOURCE_STATE, &state);
-    if( state != AL_PLAYING ) alSourcePlay( jump_source );
+    alSourcePlay( jump_source );
 }
 
 void Audio::land() {
     int state; alGetSourcei( land_source, AL_SOURCE_STATE, &state);
     if( state != AL_PLAYING ) alSourcePlay( land_source );
+}
+
+void Audio::death() {
+    int state; alGetSourcei( death_source, AL_SOURCE_STATE, &state);
+    if( state != AL_PLAYING ) alSourcePlay( death_source );
 }
