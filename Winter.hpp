@@ -9,6 +9,7 @@
 #include "Util.hpp"
 #include "Player.hpp"
 #include "Skybox.hpp"
+#include "FrameBuffer.hpp"
 
 #include <glm/glm.hpp>
 
@@ -40,10 +41,11 @@ protected:
     void initViewMatrix();
     void initLightSources();
 
+    void uploadShadowUniforms();
     void uploadCommonSceneUniforms();
 
-    glm::mat4 m_perpsective;
-    glm::mat4 m_view;
+    glm::mat4 P;
+    glm::mat4 V;
 
     double last_frame_time;
     double delta_time;
@@ -57,4 +59,6 @@ protected:
     Controls ctrls;
     ParticleSystem particle_system;
     Skybox skybox;
+    Texture *shadow_texture;
+    FrameBuffer *shadow_buffer;
 };

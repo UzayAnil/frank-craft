@@ -128,7 +128,8 @@ void Player::checkInput( Controls &ctrls ) {
 
 }
 
-void Player::updateUniform( const glm::mat4 &P, const glm::mat4 &V, const LightSource &light, const vec3 &ambientIntensity ) {
+void Player::updateUniform( const glm::mat4 &P, const glm::mat4 &V, LightSource light, const vec3 &ambientIntensity ) {
+    light.position = vec3( V * vec4(light.position, 1) );
     puppet.updateUniform( P, V*M, light, ambientIntensity );
     {
         mat4 MM = translate(mat4(), vec3(M[3][0], M[3][1], M[3][2]) );

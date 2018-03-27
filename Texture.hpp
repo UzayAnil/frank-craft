@@ -4,7 +4,7 @@
 
 class Texture {
 public:
-    enum Type { TEX2D, TEXCUBE };
+    enum Type { TEX2D, TEXCUBE, TEXDEPTH };
 public:
     Texture( std::string img_file );
     Texture( std::string img_file[6] );

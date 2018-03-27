@@ -32,25 +32,28 @@ void Winter::init() {
     initViewMatrix();
     initLightSources();
 
+    shadow_texture = new Texture( 1024, 1024, Texture::Type::TEXDEPTH );
+    shadow_buffer = new FrameBuffer( shadow_texture );
+
     last_frame_time = getTime();
 }
 
 
 void Winter::initPerspectiveMatrix() {
     float aspect = ((float)m_windowWidth) / m_windowHeight;
-    //m_perpsective = glm::perspective(degreesToRadians(60.0f), aspect, 0.1f, 100.0f);
-    m_perpsective = glm::perspective(degreesToRadians(60.0f), aspect, 1.0f, 1000.0f);
+    //P = glm::perspective(degreesToRadians(60.0f), aspect, 0.1f, 100.0f);
+    P = glm::perspective(degreesToRadians(60.0f), aspect, 1.0f, 1000.0f);
 }
 
 void Winter::initViewMatrix() {
-    //m_view = glm::lookAt(vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, -1.0f),
+    //V = glm::lookAt(vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, -1.0f),
             //vec3(0.0f, 1.0f, 0.0f));
-    m_view = glm::lookAt(
+    V = glm::lookAt(
         glm::vec3( 0.0f, 2.0f, -float(4)*2.0*M_SQRT1_2 ),
         glm::vec3( 0.0f, 2.0f, 0.0f ),
         glm::vec3( 0.0f, 1.0f, 0.0f ) );
-    //m_view = m_view * rotate( mat4(), -float(degreesToRadians(110)), vec3( 1, 0, 0 ) );
-    //m_view = m_view * translate( mat4(), vec3(-20, -80, 0) );
+    //V = V * rotate( mat4(), -float(degreesToRadians(110)), vec3( 1, 0, 0 ) );
+    //V = V * translate( mat4(), vec3(-20, -80, 0) );
 }
 
 void Winter::initLightSources() {
@@ -59,12 +62,30 @@ void Winter::initLightSources() {
     m_light.rgbIntensity = vec3(0.8f); // White light
 }
 
+void Winter::uploadShadowUniforms() {
+
+    float near_plane = 300.0f, far_plane = 700.0f;
+    mat4 PP = ortho(-50.0f, 50.0f, -50.0f, 50.0f, near_plane, far_plane);
+
+    mat4 VV = lookAt( m_light.position,
+          player.pos,
+          vec3( 0.0f, 1.0f,  0.0f));
+
+    vec3 ambientIntensity(0.5f);
+
+    player.updateUniform( PP, VV, m_light, ambientIntensity );
+    terrain.updateUniform( PP, VV );
+    particle_system.updateUniform( PP, VV );
+    skybox.updateUniform( PP, VV );
+}
+
 void Winter::uploadCommonSceneUniforms() {
     vec3 ambientIntensity(0.5f);
-    player.updateUniform( m_perpsective, m_view, m_light, ambientIntensity );
-    terrain.updateUniform( m_perpsective, m_view );
-    particle_system.updateUniform( m_perpsective, m_view );
-    skybox.updateUniform( m_perpsective, m_view );
+
+    player.updateUniform( P, V, m_light, ambientIntensity );
+    terrain.updateUniform( P, V );
+    particle_system.updateUniform( P, V );
+    skybox.updateUniform( P, V );
 }
 
 /*
@@ -91,8 +112,7 @@ void Winter::appLogic() {
     }
 
     // get new view matrix, upload P, V to all shaders
-    m_view = camera.getViewMatrix();
-    uploadCommonSceneUniforms();
+    V = camera.getViewMatrix();
 }
 
 /*
@@ -128,11 +148,31 @@ void Winter::draw() {
     glEnable( GL_DEPTH_TEST );
     glEnable(GL_CULL_FACE);
 
-    camera.getViewMatrix();
-    terrain.render();
-    player.render();
-    particle_system.render();
-    skybox.render();
+    // shadow framebuffer filling
+    {
+        glViewport( 0, 0, 1024, 1024 );
+        shadow_buffer->bind();
+            glClear( GL_DEPTH_BUFFER_BIT );
+            uploadShadowUniforms();
+            terrain.render();
+            player.render();
+        shadow_buffer->unbind();
+    }
+
+
+    // regular rendering
+    {
+        glViewport(0, 0, m_framebufferWidth, m_framebufferHeight);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        camera.getViewMatrix();
+
+        uploadCommonSceneUniforms();
+        terrain.render();
+        player.render();
+        particle_system.render();
+        skybox.render();
+    }
 }
 
 /*

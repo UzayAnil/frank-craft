@@ -12,7 +12,7 @@ public:
     void init( std::string file );
 
     void render();
-    void updateUniform( const glm::mat4 &P, const glm::mat4 &V,  const LightSource &m_light, const glm::vec3 &ambientIntensity );
+    void updateUniform( const glm::mat4 &P, const glm::mat4 &V, LightSource m_light, const glm::vec3 &ambientIntensity );
 
     void move( Controls &ctrls, float delta_time, SuperChunk &terrain );
     void checkInput( Controls &ctrls );

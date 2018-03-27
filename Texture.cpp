@@ -69,6 +69,31 @@ Texture::Texture( string img_file[6] ) {
     type = TEXCUBE;
     CHECK_GL_ERRORS;
 }
+Texture::Texture( int width, int height, Texture::Type type ) {
+    // just doing 2d shadow type for now
+    if ( type == TEXDEPTH ) {
+        glGenTextures(1, &tex);
+        texCounter = Texture::counter;
+        Texture::counter++;
+
+        glActiveTexture( GL_TEXTURE0+texCounter );
+        glBindTexture( GL_TEXTURE_2D, tex );
+
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+        this->type = TEXDEPTH;
+        this->width = width;
+        this->height = height;
+    } else {
+        throw "invalid type";
+    }
+    CHECK_GL_ERRORS;
+}
 
 bool Texture::bind( GLint uniform ) {
     {

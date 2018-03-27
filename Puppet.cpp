@@ -2,6 +2,7 @@
 #include "cs488-framework/OpenGLImport.hpp"
 #include "scene_lua.hpp"
 #include "Util.hpp"
+#include <iostream>
 
 using namespace glm;
 using namespace std;
