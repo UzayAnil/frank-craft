@@ -11,13 +11,18 @@ using namespace std;
 Player::Player()
     : angle( 0 ), move_speed( 0 ), turn_speed( 0 ), up_speed( 0 ), jump_cnts( 3 ),
     pos( SuperChunk::NCX*Chunk::SX/2, 300, SuperChunk::NCZ*Chunk::SZ/2), dir( 0, 0, 1 ),
-    boundingBox( vec3(-.5, 1, -.5), vec3(.5, 3.2, .5), true ) {
+    boundingBox( vec3(-.5, 1, -.5), vec3(.5, 3.2, .5), true ), show_bounding( false ) {
     M = translate( M, pos );
+}
+
+Player::~Player() {
+    delete audio;
 }
 
 void Player::init( std::string file ) {
     puppet.init( file );
     boundingBox.init();
+    audio = new Audio();
 }
 
 bool collide( vec3 min, vec3 max, SuperChunk &terrain ) {
@@ -80,13 +85,18 @@ void Player::move( Controls &ctrls, float delta_time, SuperChunk &terrain ) {
     mat4 newM = translate( M, dis*vec3(0,0,1) );
     vec3 min( newM * vec4(boundingBox.min, 1) );
     vec3 max( newM * vec4(boundingBox.max, 1) );
+    bool walking = true;
     if ( !collide( min, max, terrain ) ) {
         pos += dis * dir;
         M = newM;
+    } else {
+        walking = false;
     }
 
-    if ( fabs(move_speed) > ggEps ) {
+    if ( fabs(move_speed) > ggEps && walking ) {
         puppet.animate( move_speed > 0 ? delta_time : -delta_time );
+    } else {
+        walking = false;
     }
 
     // fall
@@ -96,9 +106,15 @@ void Player::move( Controls &ctrls, float delta_time, SuperChunk &terrain ) {
     newM = translate( M, vec3(0, new_y-pos.y, 0) );
     if ( downCollide( pos.y, new_y, min, max, terrain ) ) {
         newM = translate( M, vec3(0, new_y-pos.y, 0) );
+        if ( abs(new_y-pos.y) > ggEps )
+            audio->land();
         up_speed = 0;
         jump_cnts = 3;
     }
+
+    if( walking && abs(new_y-pos.y) < ggEps )
+        audio->walk();
+
     pos.y = new_y;
     M = newM;
 }
@@ -124,6 +140,7 @@ void Player::checkInput( Controls &ctrls ) {
         up_speed = JUMP_POWER;
         jump_cnts--;
         ctrls.Space = false;
+        audio->jump();
     }
 
 }
@@ -139,5 +156,7 @@ void Player::updateUniform( const glm::mat4 &P, const glm::mat4 &V, LightSource 
 
 void Player::render() {
     puppet.render();
-    boundingBox.render();
+    if ( show_bounding ) {
+        boundingBox.render();
+    }
 }

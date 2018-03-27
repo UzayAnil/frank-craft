@@ -12,6 +12,7 @@ using namespace std;
 using namespace glm;
 
 static bool show_gui = true;
+static bool show_particles = false;
 
 // Constructor
 Winter::Winter(const std::string & luaSceneFile) : m_luaSceneFile(luaSceneFile), camera(player){ }
@@ -104,11 +105,13 @@ void Winter::appLogic() {
     particle_system.update( delta_time );
 
 
-    for ( int i = 0; i < rand()%5; i++ ) {
-        float vx = (rand()%5+1)* (2*float(rand())/RAND_MAX-1);
-        float vy = (rand()%5+1)* (2*float(rand())/RAND_MAX-1);
-        float vz = (rand()%5+1) * (2*float(rand())/RAND_MAX-1);
-        particle_system.addParticle( player.pos+vec3(0, 5, 0), vec3(vx, vy, vz) );
+    if ( show_particles ) {
+        for ( int i = 0; i < rand()%5; i++ ) {
+            float vx = (rand()%5+1)* (2*float(rand())/RAND_MAX-1);
+            float vy = (rand()%5+1)* (2*float(rand())/RAND_MAX-1);
+            float vz = (rand()%5+1) * (2*float(rand())/RAND_MAX-1);
+            particle_system.addParticle( player.pos+vec3(0, 5, 0), vec3(vx, vy, vz) );
+        }
     }
 
     // get new view matrix, upload P, V to all shaders
@@ -137,6 +140,12 @@ void Winter::guiLogic() {
             windowFlags);
 
         ImGui::Text( "Framerate: %.1f FPS", ImGui::GetIO().Framerate );
+        if( ImGui::Button( "Toggle Bounding Box" ) ) { 
+            player.show_bounding = !player.show_bounding;
+        }
+        if( ImGui::Button( "Toggle Particle Effect" ) ) { 
+            show_particles = !show_particles;
+        }
 
     ImGui::End();
 }

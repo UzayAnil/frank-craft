@@ -5,10 +5,12 @@
 #include "Chunk.hpp"
 #include "Particle.hpp"
 #include "Cube.hpp"
+#include "Sound.hpp"
 
 class Player {
 public:
     Player();
+    ~Player();
     void init( std::string file );
 
     void render();
@@ -17,12 +19,11 @@ public:
     void move( Controls &ctrls, float delta_time, SuperChunk &terrain );
     void checkInput( Controls &ctrls );
 
-    //glm::mat4 getViewMatrix();
-
 public:
     float angle;
     glm::vec3 pos;
     glm::vec3 dir;
+    bool show_bounding;
 
 private:
     static constexpr float MOVE_SPEED = 20;
@@ -36,4 +37,5 @@ private:
     glm::mat4 M;
     Puppet puppet;
     Cube boundingBox;
+    Audio *audio;
 };

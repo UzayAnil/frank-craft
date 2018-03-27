@@ -41,7 +41,8 @@ if os.get() == "linux" then
         "X11",
         "stdc++",
         "dl",
-        "pthread"
+        "pthread",
+        "openal"
     }
 end
 
