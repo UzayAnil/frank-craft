@@ -140,15 +140,17 @@ void Winter::guiLogic() {
             windowFlags);
 
         ImGui::Text( "Framerate: %.1f FPS", ImGui::GetIO().Framerate );
-        if( ImGui::Button( "Toggle Bounding Box" ) ) { 
-            player.show_bounding = !player.show_bounding;
-        }
-        if( ImGui::Button( "Toggle Particle Effect" ) ) { 
+        if( ImGui::Button( "Toggle Particle Effect( E )" ) ) { 
             show_particles = !show_particles;
         }
-
-        if( ImGui::Button( "Toggle Perspective" ) ) { 
+        if( ImGui::Button( "Toggle Perspective( P )" ) ) { 
             camera.third_person_perspective = !camera.third_person_perspective;
+        }
+        if( ImGui::Button( "Toggle Bounding Box( B )" ) ) { 
+            player.show_bounding = !player.show_bounding;
+        }
+        if( ImGui::Button( "Quit( Q )" ) ) { 
+            glfwSetWindowShouldClose(m_window, GL_TRUE);
         }
     ImGui::End();
 }
@@ -291,6 +293,18 @@ bool Winter::keyInputEvent ( int key, int action, int mods) {
 
         if ( key == GLFW_KEY_Q ) {
             glfwSetWindowShouldClose(m_window, GL_TRUE);
+            eventHandled = true;
+        }
+        if ( key == GLFW_KEY_E ) {
+            show_particles = !show_particles;
+            eventHandled = true;
+        }
+        if ( key == GLFW_KEY_B ) {
+            player.show_bounding = !player.show_bounding;
+            eventHandled = true;
+        }
+        if ( key == GLFW_KEY_P ) {
+            camera.third_person_perspective = !camera.third_person_perspective;
             eventHandled = true;
         }
     }
