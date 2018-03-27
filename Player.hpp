@@ -18,6 +18,7 @@ public:
 
     void move( Controls &ctrls, float delta_time, SuperChunk &terrain );
     void checkInput( Controls &ctrls );
+    void attack( SuperChunk &terrain, ParticleSystem &particle_system );
 
     void updatePitch( float delta );
     void updateYaw( float delta );

@@ -233,6 +233,10 @@ bool Winter::mouseButtonInputEvent ( int button, int actions, int mods) {
                 ctrls.mouse_left_down = true;
                 eventHandled = true;
             }
+            if ( button == GLFW_MOUSE_BUTTON_RIGHT ) {
+                player.attack( terrain, particle_system );
+                eventHandled = true;
+            }
         }
 
         if ( actions == GLFW_RELEASE ) {

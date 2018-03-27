@@ -130,6 +130,38 @@ void Player::move( Controls &ctrls, float delta_time, SuperChunk &terrain ) {
     M = newM;
 }
 
+void Player::attack( SuperChunk &terrain, ParticleSystem &particle_system ) {
+
+    vec3 dirs[3];
+    dirs[0] = normalize(vec3(transpose(inverse(M)) * vec4(0,0,1,1) ));
+    dirs[1] = normalize(vec3( rotate(mat4(), degreesToRadians(2.5f), vec3(0,1,0)) * vec4(dirs[0],1)));
+    dirs[2] = normalize(vec3( rotate(mat4(), degreesToRadians(-2.5f), vec3(0,1,0)) * vec4(dirs[0],1)));
+    bool found = false;
+    for ( float i = 0; i < 2 && !found; i++ ) {
+        for ( float j = 1; j < 3 && !found; j++ ) {
+            for ( int k = 0; k<3 && !found; k++ ) {
+                vec3 dir = dirs[k];
+                vec3 new_pos = pos+ j*vec3(0,1,0) + i*dir;
+
+                float x = new_pos.x;
+                float y = new_pos.y;
+                float z = new_pos.z;
+
+                if ( terrain.get(x,y,z) != BlockType::Empty ) {
+                    terrain.set( x, y, z, BlockType::Empty );
+                    for ( int i = 0; i < 100; i++ ) {
+                        float vx = (rand()%8+1)* (2*float(rand())/RAND_MAX-1);
+                        float vy = (rand()%8+1)* (2*float(rand())/RAND_MAX-1);
+                        float vz = (rand()%8+1) * (2*float(rand())/RAND_MAX-1);
+                        particle_system.addParticle( new_pos+vec3(.5,.5,.5), vec3(vx, vy, vz) );
+                    }
+                    found = true;
+                }
+            }
+        }
+    }
+}
+
 void Player::checkInput( Controls &ctrls ) {
     if ( ctrls.W ) {
         move_speed = MOVE_SPEED;

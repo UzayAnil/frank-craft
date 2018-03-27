@@ -69,8 +69,8 @@ mat4 PlayerCamera::getViewMatrix() {
         vec3 dir(dx, dy, dz);
 
 
-        vec3 from = player.pos + vec3(0, 5, 0);
-        vec3 to = player.pos + vec3(0, 5, 0 ) + dir;
+        vec3 from = player.pos + vec3(0, 3, 0);
+        vec3 to = player.pos + vec3(0, 3, 0 ) + dir;
         vec3 up = vec3(0, 1, 0);
         return glm::lookAt( from, to, up );
     }
