@@ -3,6 +3,7 @@
 #include <iostream>
 #include <cassert>
 using namespace std;
+using namespace irrklang;
 
 // open and load file
 Audio::Audio() {
@@ -50,17 +51,8 @@ Audio::Audio() {
 
     loadWav("Assets/land.wav", land_source, land_buffer);
 
-    //alGenSources((ALuint)1, &background_source);
-    //alGenBuffers((ALuint)1, &background_buffer);
-    //alSourcei(background_source, AL_SOURCE_RELATIVE, AL_TRUE);
-    //alSourcef(background_source, AL_PITCH, 1);
-    //alSourcef(background_source, AL_GAIN, 0.5f);
-    //alSource3f(background_source, AL_POSITION, 0.0f, 0.0f, 0.0f);
-    //alSource3f(background_source, AL_VELOCITY, 0.0f, 0.0f, 0.0f);
-    //alSourcei(background_source, AL_LOOPING, AL_TRUE);
-
-    //loadWav("Assets/land.wav", background_source, background_buffer);
-    //alSourcePlay( background_source );
+    soundEngine = createIrrKlangDevice();
+    soundEngine->play2D("Assets/background.wav");
 
 }
 

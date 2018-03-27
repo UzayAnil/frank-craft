@@ -3,6 +3,8 @@
 #include <AL/al.h>
 #include <AL/alc.h>
 
+#include <irrKlang.h>
+
 class Audio {
 public:
     Audio();
@@ -23,5 +25,6 @@ private:
     ALuint land_source;
     ALuint land_buffer;
 
-    ALuint background_source;
-    ALuint background_buffer; };
+    irrklang::ISoundEngine* soundEngine;
+
+};

@@ -13,7 +13,10 @@ typedef glm::tvec4<GLbyte> byte4;
 
 enum BlockType {
     Empty = 0,
-    Grass = 1
+    Grass = 1,
+    Dirt = 2,
+    Trunk = 3,
+    Leaf = 4
 };
 
 class Chunk {

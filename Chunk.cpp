@@ -26,6 +26,18 @@ Chunk::~Chunk() {
     delete []vertex;
 }
 
+void getSides( BlockType type, uint8_t &up, uint8_t &down, uint8_t &side) {
+    if( type == BlockType::Grass ) {
+        up = 0-16;
+        down = 2-16;
+        side = 3;
+    } else if ( type == BlockType::Dirt ) {
+        up = 2-16;
+        down = 2-16;
+        side = 2;
+    }
+}
+
 bool Chunk::isblocked( int x1, int y1, int z1, int x2, int y2, int z2 ) {
     if( get(x1, y1, z1) == BlockType::Empty )
         return true;
@@ -94,7 +106,6 @@ void Chunk::update() {
         for(int y = 0; y < SY; y++) {
             for(int z = 0; z < SZ; z++) {
 
-                //if( !grid[x][y][z] ) continue;
                 if(isblocked(x, y, z, x - 1, y, z)) {
                     is_visible = false;
                     continue;
@@ -104,11 +115,7 @@ void Chunk::update() {
                 uint8_t top;
                 uint8_t bottom;
                 uint8_t side;
-                if ( grid[x][y][z] == BlockType::Grass ) {
-                    top = 0-16;
-                    side = 3;
-                    bottom = 2-16;
-                }
+                getSides( grid[x][y][z], top, bottom, side );
 
                 vertex[i++] = byte4(x, y, z, side);
                 vertex[i++] = byte4(x, y, z + 1, side);
@@ -136,11 +143,7 @@ void Chunk::update() {
                 uint8_t top;
                 uint8_t bottom;
                 uint8_t side;
-                if ( grid[x][y][z] == BlockType::Grass ) {
-                    top = 0-16;
-                    side = 3;
-                    bottom = 2-16;
-                }
+                getSides( grid[x][y][z], top, bottom, side );
 
                 vertex[i++] = byte4(x + 1, y, z, side);
                 vertex[i++] = byte4(x + 1, y + 1, z, side);
@@ -168,11 +171,7 @@ void Chunk::update() {
                 uint8_t top;
                 uint8_t bottom;
                 uint8_t side;
-                if ( grid[x][y][z] == BlockType::Grass ) {
-                    top = 0-16;
-                    side = 3;
-                    bottom = 2-16;
-                }
+                getSides( grid[x][y][z], top, bottom, side );
 
                 vertex[i++] = byte4(x, y, z, bottom);
                 vertex[i++] = byte4(x + 1, y, z, bottom);
@@ -200,11 +199,7 @@ void Chunk::update() {
                 uint8_t top;
                 uint8_t bottom;
                 uint8_t side;
-                if ( grid[x][y][z] == BlockType::Grass ) {
-                    top = 0-16;
-                    side = 3;
-                    bottom = 2-16;
-                }
+                getSides( grid[x][y][z], top, bottom, side );
 
                 vertex[i++] = byte4(x, y + 1, z, top);
                 vertex[i++] = byte4(x, y + 1, z + 1, top);
@@ -232,11 +227,7 @@ void Chunk::update() {
                 uint8_t top;
                 uint8_t bottom;
                 uint8_t side;
-                if ( grid[x][y][z] == BlockType::Grass ) {
-                    top = 0-16;
-                    side = 3;
-                    bottom = 2-16;
-                }
+                getSides( grid[x][y][z], top, bottom, side );
 
                 vertex[i++] = byte4(x, y, z, side);
                 vertex[i++] = byte4(x, y + 1, z, side);
@@ -264,11 +255,7 @@ void Chunk::update() {
                 uint8_t top;
                 uint8_t bottom;
                 uint8_t side;
-                if ( grid[x][y][z] == BlockType::Grass ) {
-                    top = 0-16;
-                    side = 3;
-                    bottom = 2-16;
-                }
+                getSides( grid[x][y][z], top, bottom, side );
 
                 vertex[i++] = byte4(x, y, z + 1, side);
                 vertex[i++] = byte4(x + 1, y, z + 1, side);
@@ -399,8 +386,8 @@ void SuperChunk::genTerrain() {
             int h = (int)clamp( noise*2*double(NCY*Chunk::SY)-.7*(NCY*Chunk::SY), 1.0, (double)NCY*Chunk::SY );
 
             for ( int y = 0; y < h; y++ ) {
-                set( x, y, z, BlockType::Grass );
-
+                set( x, y, z, BlockType::Dirt );
+                if ( y == h-1 ) set( x, y, z, BlockType::Grass );
             }
         }
     }
