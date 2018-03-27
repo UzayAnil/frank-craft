@@ -55,7 +55,7 @@ void Winter::initViewMatrix() {
 
 void Winter::initLightSources() {
     // World-space position
-    m_light.position = vec3(-2.0f, 5.0f, 0.5f);
+    m_light.position = vec3(290, 490, -220);
     m_light.rgbIntensity = vec3(0.8f); // White light
 }
 
@@ -126,7 +126,7 @@ void Winter::guiLogic() {
  */
 void Winter::draw() {
     glEnable( GL_DEPTH_TEST );
-    //glEnable(GL_CULL_FACE);
+    glEnable(GL_CULL_FACE);
 
     camera.getViewMatrix();
     terrain.render();

@@ -57,5 +57,5 @@ uniform samplerCube envMapTex;
 void main() {
     vec4 c1 = vec4(phongModel(fs_in.position_ES, fs_in.normal_ES), 1.0);
     vec4 c2 = texture( envMapTex, fs_in.reflected_ES );
-    fragColour = mix( c1, c2, 0.7 );
+    fragColour = mix( c1, c2, .001 );
 }
